@@ -61,12 +61,12 @@ Linkuri directe (adaugi la finalul adresei):
 
 | Id (intern) | Rol | Nume | Fotografie-sursă |
 |---|---|---|---|
-| `barbat` | Bărbat | **Gică** | poze_generice/barbat.jpg |
-| `femeie` | Femeie | **Doina** | poze_generice/femeie.jpg |
-| `baietel` | Băiețel | **Alexandru** | poze_generice/baietel.jpg |
-| `fetita` | Fetiță | **Liliana** | poze_generice/fetita.jpg |
-| `baiat_ado` | Băiat adolescent | **Mihai** | poze_generice/baiat_ado.jpg |
-| `fata_ado` | Fată adolescentă | **Ioana** | poze_generice/fata_ado.jpg |
+| `barbat` | Bărbat | **Andrei** | poze_generice/barbat.jpg |
+| `femeie` | Femeie | **Maria** | poze_generice/femeie.jpg |
+| `baietel` | Băiețel | **Luca** | poze_generice/baietel.jpg |
+| `fetita` | Fetiță | **Sofia** | poze_generice/fetita.jpg |
+| `baiat_ado` | Băiat adolescent | **Radu** | poze_generice/baiat_ado.jpg |
+| `fata_ado` | Fată adolescentă | **Elena** | poze_generice/fata_ado.jpg |
 
 **Ca să schimbi un nume:** selectezi modelul și scrii în câmpul **Nume** din secțiunea **Model**. Se salvează imediat. Eticheta de deasupra capului, miniatura și fișa din prezentare se actualizează singure.
 
@@ -122,7 +122,7 @@ La pantofi: **Prea mic**, **Potrivit**, **Ușor mare** sau **Prea mare**, după 
 
 ![Fețele proiectate pe capul 3D](docs/img/fete_3d.png)
 
-1. Selectezi modelul (de exemplu **Gică**).
+1. Selectezi modelul (de exemplu **Andrei**).
 2. În secțiunea **Model** apeși **📷 Schimbă fața…**
 3. Apeși **Alege fișierul** și selectezi o fotografie.
 4. **Mărești** pe fața persoanei: rotița mouse-ului sau butonul **＋**. Tragi cu mouse-ul ca să muți imaginea.
@@ -142,7 +142,7 @@ La pantofi: **Prea mic**, **Potrivit**, **Ușor mare** sau **Prea mare**, după 
 
 ## 5.2 Sfaturi pentru o față reușită
 
-* Poza să fie **din față**. Capul întors sau aplecat produce o față deformată pe avatar; e cazul pozei actuale a lui Alexandru.
+* Poza să fie **din față**. Capul întors sau aplecat produce o față deformată pe avatar.
 * Lumină uniformă, fără umbre tari. Ochii deschiși și vizibili amândoi.
 * Fața să aibă cel puțin **150 px** între ochi în fotografia originală; ideal **400 px** (un selfie de telefon are de obicei 300–500 px). Textura feței are 1024 × 1280 px, dar nu poate adăuga detalii care lipsesc din poză: o poză mică dă o față netedă.
 * Ochelarii din poză rămân pe față. Pentru ochelari 3D separați folosești accesoriul **Ochelari**.
@@ -405,7 +405,7 @@ Aplicația are două variante, construite din același cod:
 | | Versiunea internă | Versiunea pentru clienți |
 |---|---|---|
 | Fișiere | `DoinaDress_Cabina3D.html`, `web/`, `DoinaDress.apk` | `magazin/DoinaDress_Magazin.html`, `magazin/web/`, `magazin/DoinaDress_Magazin.apk` |
-| Avatare | familia (Gică, Doina, Alexandru, Liliana, Mihai, Ioana), cu fețele din poze | 6 **manechine** fără față: Femeie, Bărbat, Adolescentă, Adolescent, Fetiță, Băiețel |
+| Avatare | familia (Andrei, Maria, Luca, Sofia, Radu, Elena), cu fețele din poze | 6 **manechine** fără față: Femeie, Bărbat, Adolescentă, Adolescent, Fetiță, Băiețel |
 | Administrare catalog | da (produse, prețuri, stoc, tabele, import CSV) | **nu**: clientul doar probează și trimite lista |
 | Nume pe telefon | DoinaDress | DoinaDress Magazin |
 

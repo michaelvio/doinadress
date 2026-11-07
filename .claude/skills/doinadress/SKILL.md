@@ -68,6 +68,8 @@ Verifică apoi `<w:pgSz w:w="11906" w:h="16838">` și `pgMar` = 720 în `word/do
 - Repo-ul public este `michaelvio/doinadress`. Istoricul vechi, care conține poze de familie, este în repo-ul privat `michaelvio/doinadress-privat`. Nu-l face public.
 - Git nu are identitate globală. Ia numele și emailul din ultimul commit (`git log -1 --format='%an|%ae'`) și dă-le cu `git -c user.name=… -c user.email=… commit`.
 - Rămân în afara git: `*.apk`, `DoinaDress_Cabina3D.html` și `magazin/DoinaDress_Magazin.html` (~20 MB), plus `build_cache/`, `assets_src/` și `kotlin_apk/`.
+- Linkul public de vizualizare este https://michaelvio.github.io/doinadress/ pentru familie și `/magazin/` pentru versiunea clienților. Îl publică `.github/workflows/pages.yml` la fiecare push pe `main` care modifică `web/` sau `magazin/web/`. Urmărești publicarea cu `gh run list -R michaelvio/doinadress`.
+- Numele modelelor sunt generice (Andrei, Maria, Luca, Sofia, Radu, Elena). Nu pune în repo nume reale din familia utilizatorului.
 - Înainte de push, rulează `git ls-files | grep -iE '\.(jpe?g|png)$'` și verifică că nu apare nicio poză reală.
 
 ## Particularități pe Windows

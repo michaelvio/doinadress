@@ -6,7 +6,7 @@
     {
       "id": "barbat",
       "rol": "Bărbat",
-      "nume": "Gică",
+      "nume": "Andrei",
       "gen": "m",
       "varsta": "adult",
       "skin": "#845949",
@@ -81,7 +81,7 @@
     {
       "id": "femeie",
       "rol": "Femeie",
-      "nume": "Doina",
+      "nume": "Maria",
       "gen": "f",
       "varsta": "adult",
       "skin": "#dc9770",
@@ -147,7 +147,7 @@
     {
       "id": "baietel",
       "rol": "Băiețel",
-      "nume": "Alexandru",
+      "nume": "Luca",
       "gen": "m",
       "varsta": "copil",
       "skin": "#d2aa83",
@@ -222,7 +222,7 @@
     {
       "id": "fetita",
       "rol": "Fetiță",
-      "nume": "Liliana",
+      "nume": "Sofia",
       "gen": "f",
       "varsta": "copil",
       "skin": "#e8b7b8",
@@ -289,7 +289,7 @@
     {
       "id": "baiat_ado",
       "rol": "Băiat adolescent",
-      "nume": "Mihai",
+      "nume": "Radu",
       "gen": "m",
       "varsta": "adolescent",
       "skin": "#d39f8d",
@@ -361,7 +361,7 @@
     {
       "id": "fata_ado",
       "rol": "Fată adolescentă",
-      "nume": "Ioana",
+      "nume": "Elena",
       "gen": "f",
       "varsta": "adolescent",
       "skin": "#bc8f72",

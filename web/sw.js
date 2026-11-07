@@ -1,6 +1,6 @@
 // Service worker DoinaDress: aplicația merge offline după prima deschidere.
 // index.html se ia întâi din rețea (ca să primești versiunile noi), apoi din memorie dacă nu ai internet.
-const CACHE = 'doinadress-202611071140';
+const CACHE = 'doinadress-202611071157';
 const FILES = ['./', './index.html', './manifest.webmanifest', './mh.pack',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png'];
 
