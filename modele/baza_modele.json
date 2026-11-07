@@ -1,0 +1,437 @@
+{
+  "app": "DoinaDress",
+  "schema": 2,
+  "revizie": 1,
+  "modele": [
+    {
+      "id": "barbat",
+      "rol": "Bărbat",
+      "nume": "Gică",
+      "gen": "m",
+      "varsta": "adult",
+      "skin": "#845949",
+      "hair": {
+        "style": "scurt",
+        "color": "#241c18"
+      },
+      "face": "fete/barbat.jpg",
+      "faceAdj": {
+        "scale": 1,
+        "dy": 0,
+        "bright": 1,
+        "mask": 0.42
+      },
+      "sursa": {
+        "foto": "poze_generice/barbat.jpg",
+        "ochi": [
+          [
+            387,
+            478
+          ],
+          [
+            635,
+            480
+          ]
+        ]
+      },
+      "body": {
+        "height": 178,
+        "chest": 104,
+        "waist": 94,
+        "hips": 102,
+        "shoe": 43
+      },
+      "outfit": {
+        "top": {
+          "type": "camasa",
+          "color": "#4f6f95",
+          "pattern": "dungi",
+          "size": "L"
+        },
+        "bottom": {
+          "type": "pantaloni",
+          "color": "#24262d",
+          "pattern": "uni",
+          "size": "52"
+        },
+        "dress": null,
+        "outer": {
+          "type": "vesta",
+          "color": "#1c1c1e",
+          "pattern": "uni",
+          "size": "L"
+        },
+        "shoes": {
+          "type": "pantofi",
+          "color": "#141414",
+          "size": "43"
+        },
+        "bag": {
+          "type": "borseta",
+          "color": "#3b2d22",
+          "size": "M"
+        },
+        "acc1": {
+          "type": "curea",
+          "color": "#2a1d14"
+        },
+        "acc2": null
+      }
+    },
+    {
+      "id": "femeie",
+      "rol": "Femeie",
+      "nume": "Doina",
+      "gen": "f",
+      "varsta": "adult",
+      "skin": "#dc9770",
+      "hair": {
+        "style": "tepi",
+        "color": "#6b4d35",
+        "hi": "#a58463"
+      },
+      "face": "fete/femeie.jpg",
+      "faceAdj": {
+        "scale": 1,
+        "dy": 0,
+        "bright": 1,
+        "mask": 0.42
+      },
+      "sursa": {
+        "foto": "poze_generice/femeie.jpg",
+        "ochi": [
+          [
+            381,
+            484
+          ],
+          [
+            637,
+            483
+          ]
+        ]
+      },
+      "body": {
+        "height": 164,
+        "chest": 104,
+        "waist": 90,
+        "hips": 110,
+        "shoe": 39
+      },
+      "outfit": {
+        "top": null,
+        "bottom": null,
+        "dress": {
+          "type": "rochie",
+          "color": "#1e2742",
+          "pattern": "dantela",
+          "size": "46"
+        },
+        "outer": null,
+        "shoes": {
+          "type": "toc",
+          "color": "#151a2a",
+          "size": "39"
+        },
+        "bag": {
+          "type": "poseta",
+          "color": "#6a2c32",
+          "size": "M"
+        },
+        "acc1": {
+          "type": "colier",
+          "color": "#c9a24a"
+        },
+        "acc2": null
+      }
+    },
+    {
+      "id": "baietel",
+      "rol": "Băiețel",
+      "nume": "Alexandru",
+      "gen": "m",
+      "varsta": "copil",
+      "skin": "#d2aa83",
+      "hair": {
+        "style": "scurt",
+        "color": "#3a281d"
+      },
+      "face": "fete/baietel.jpg",
+      "faceAdj": {
+        "scale": 1,
+        "dy": 0,
+        "bright": 1,
+        "mask": 0.34
+      },
+      "sursa": {
+        "foto": "poze_generice/baietel.jpg",
+        "ochi": [
+          [
+            392,
+            485
+          ],
+          [
+            609,
+            486
+          ]
+        ]
+      },
+      "body": {
+        "height": 145,
+        "chest": 72,
+        "waist": 63,
+        "hips": 76,
+        "shoe": 35
+      },
+      "outfit": {
+        "top": {
+          "type": "camasa",
+          "color": "#f4f4f2",
+          "pattern": "uni",
+          "size": "146"
+        },
+        "bottom": {
+          "type": "pantaloni",
+          "color": "#1a1a1d",
+          "pattern": "uni",
+          "size": "146"
+        },
+        "dress": null,
+        "outer": {
+          "type": "vesta",
+          "color": "#141416",
+          "pattern": "catifea",
+          "size": "146"
+        },
+        "shoes": {
+          "type": "pantofi",
+          "color": "#111111",
+          "size": "35"
+        },
+        "bag": {
+          "type": "rucsac",
+          "color": "#2f5d8a",
+          "size": "M"
+        },
+        "acc1": {
+          "type": "papion",
+          "color": "#0d0d0f"
+        },
+        "acc2": null
+      }
+    },
+    {
+      "id": "fetita",
+      "rol": "Fetiță",
+      "nume": "Liliana",
+      "gen": "f",
+      "varsta": "copil",
+      "skin": "#e8b7b8",
+      "hair": {
+        "style": "bob",
+        "color": "#3b2418"
+      },
+      "face": "fete/fetita.jpg",
+      "faceAdj": {
+        "scale": 1,
+        "dy": 0,
+        "bright": 1,
+        "mask": 0.42
+      },
+      "sursa": {
+        "foto": "poze_generice/fetita.jpg",
+        "ochi": [
+          [
+            381,
+            480
+          ],
+          [
+            640,
+            480
+          ]
+        ]
+      },
+      "body": {
+        "height": 132,
+        "chest": 66,
+        "waist": 58,
+        "hips": 68,
+        "shoe": 32
+      },
+      "outfit": {
+        "top": {
+          "type": "bluza",
+          "color": "#f6f6f8",
+          "pattern": "uni",
+          "size": "134"
+        },
+        "bottom": null,
+        "dress": {
+          "type": "sarafan",
+          "color": "#1b2456",
+          "pattern": "catifea",
+          "size": "134"
+        },
+        "outer": null,
+        "shoes": {
+          "type": "balerini",
+          "color": "#1b2456",
+          "size": "32"
+        },
+        "bag": {
+          "type": "geanta",
+          "color": "#e48fb0",
+          "size": "S"
+        },
+        "acc1": null,
+        "acc2": null
+      }
+    },
+    {
+      "id": "baiat_ado",
+      "rol": "Băiat adolescent",
+      "nume": "Mihai",
+      "gen": "m",
+      "varsta": "adolescent",
+      "skin": "#d39f8d",
+      "hair": {
+        "style": "scurt",
+        "color": "#1f1712"
+      },
+      "face": "fete/baiat_ado.jpg",
+      "faceAdj": {
+        "scale": 1,
+        "dy": 0,
+        "bright": 1,
+        "mask": 0.38
+      },
+      "sursa": {
+        "foto": "poze_generice/baiat_ado.jpg",
+        "ochi": [
+          [
+            235,
+            301
+          ],
+          [
+            397,
+            301
+          ]
+        ]
+      },
+      "body": {
+        "height": 180,
+        "chest": 96,
+        "waist": 84,
+        "hips": 97,
+        "shoe": 44
+      },
+      "outfit": {
+        "top": {
+          "type": "polo",
+          "color": "#1f5a46",
+          "pattern": "dungi_or",
+          "size": "M"
+        },
+        "bottom": {
+          "type": "blugi",
+          "color": "#3f5c84",
+          "pattern": "denim",
+          "size": "W33L32"
+        },
+        "dress": null,
+        "outer": {
+          "type": "geaca",
+          "color": "#a3a48e",
+          "pattern": "uni",
+          "size": "L"
+        },
+        "shoes": {
+          "type": "adidasi",
+          "color": "#e9e9e9",
+          "size": "44"
+        },
+        "bag": {
+          "type": "borseta",
+          "color": "#1a1a1a",
+          "size": "M"
+        },
+        "acc1": null,
+        "acc2": null
+      }
+    },
+    {
+      "id": "fata_ado",
+      "rol": "Fată adolescentă",
+      "nume": "Ioana",
+      "gen": "f",
+      "varsta": "adolescent",
+      "skin": "#bc8f72",
+      "hair": {
+        "style": "pixie",
+        "color": "#231812"
+      },
+      "face": "fete/fata_ado.jpg",
+      "faceAdj": {
+        "scale": 1,
+        "dy": 0,
+        "bright": 1,
+        "mask": 0.34
+      },
+      "sursa": {
+        "foto": "poze_generice/fata_ado.jpg",
+        "ochi": [
+          [
+            379,
+            483
+          ],
+          [
+            640,
+            484
+          ]
+        ]
+      },
+      "body": {
+        "height": 163,
+        "chest": 84,
+        "waist": 66,
+        "hips": 90,
+        "shoe": 38
+      },
+      "outfit": {
+        "top": {
+          "type": "helanca",
+          "color": "#c48aa8",
+          "pattern": "reiat",
+          "size": "S"
+        },
+        "bottom": {
+          "type": "blugi",
+          "color": "#5b86bd",
+          "pattern": "denim",
+          "size": "38"
+        },
+        "dress": null,
+        "outer": {
+          "type": "geaca",
+          "color": "#6e808e",
+          "pattern": "uni",
+          "size": "M"
+        },
+        "shoes": {
+          "type": "adidasi",
+          "color": "#f0f0f0",
+          "size": "38"
+        },
+        "bag": {
+          "type": "geanta",
+          "color": "#3a3a3a",
+          "size": "M"
+        },
+        "acc1": {
+          "type": "colier",
+          "color": "#9a9a9a"
+        },
+        "acc2": null
+      }
+    }
+  ]
+}

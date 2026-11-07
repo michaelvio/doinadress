@@ -1,0 +1,2627 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14171d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DoinaDress">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>DoinaDress Cabină 3D</title>
+<style>
+:root{
+  --bg:#14171d; --panel:#1c2028; --panel2:#232833; --line:#2f3542; --text:#e8eaef; --muted:#9aa2b1;
+  --accent:#d4a35a; --ok:#4fbf7f; --warn:#e3a33b; --bad:#e2575b; --info:#5aa6e0;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-text-size-adjust:100%}
+#app{display:flex;height:100vh;height:100dvh;width:100vw;overflow:hidden}
+button,select,input{touch-action:manipulation}
+#panel{width:380px;flex:none;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden}
+#panel header{padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+#panel header h1{margin:0;font-size:17px;letter-spacing:.3px}
+#panel header h1 b{color:var(--accent)}
+#panel header p{margin:2px 0 0;color:var(--muted);font-size:12px}
+#scroll{overflow:auto;padding:12px 14px 20px;flex:1}
+#avatars{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:12px}
+.av{border:2px solid transparent;background:var(--panel2);border-radius:10px;padding:3px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);font-size:10px}
+.av img{width:42px;height:52px;object-fit:cover;border-radius:7px;background:#000}
+.av.sel{border-color:var(--accent);color:var(--text)}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:14px 0 6px;font-weight:600}
+.body{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.body label{display:flex;flex-direction:column;font-size:10.5px;color:var(--muted);gap:2px}
+input,select{background:#12151b;border:1px solid var(--line);color:var(--text);border-radius:7px;padding:5px 6px;font:inherit;font-size:12.5px;min-width:0;width:100%}
+input[type=color]{padding:1px 2px;height:30px;cursor:pointer}
+.slot{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 9px;margin-bottom:7px}
+.slot-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-weight:600;font-size:12.5px}
+.slot-c{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,.9fr) 42px minmax(0,1.2fr);gap:5px}
+.slot-c.nopat{grid-template-columns:1.6fr .9fr 42px}
+.slot-c.nosize{grid-template-columns:1.6fr 42px}
+.hint{font-size:11px;color:var(--muted);margin-top:4px}
+.fit{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+.fit.ok{background:rgba(79,191,127,.16);color:var(--ok)}
+.fit.warn{background:rgba(227,163,59,.16);color:var(--warn)}
+.fit.bad{background:rgba(226,87,91,.16);color:var(--bad)}
+.fit.info{background:rgba(90,166,224,.16);color:var(--info)}
+.fit.none{color:var(--muted)}
+.actions{display:flex;gap:6px;padding:10px 14px;border-top:1px solid var(--line)}
+button{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:7px 11px;font:inherit;font-size:12.5px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);color:#1a1408;border-color:var(--accent);font-weight:600}
+#stage{position:relative;flex:1;min-width:0}
+#stage canvas{display:block;width:100%;height:100%}
+#toolbar button{white-space:nowrap}
+#toolbar{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;background:rgba(20,23,29,.75);backdrop-filter:blur(6px);padding:6px;border-radius:12px;border:1px solid var(--line)}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.lbl{position:absolute;transform:translate(-50%,-100%);background:rgba(20,23,29,.7);border:1px solid var(--line);padding:2px 9px;border-radius:20px;font-size:11.5px;white-space:nowrap;pointer-events:auto;cursor:pointer}
+.lbl.sel{border-color:var(--accent);color:var(--accent)}
+#card{position:absolute;right:16px;bottom:16px;width:310px;max-width:calc(100% - 32px);background:rgba(20,23,29,.86);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:none}
+#card h3{margin:0 0 2px;font-size:18px}
+#card .sub{color:var(--muted);font-size:12px;margin-bottom:8px}
+#card ul{list-style:none;margin:0;padding:0}
+#card li{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-top:1px solid var(--line);font-size:12.5px}
+#card li span:first-child{display:flex;align-items:center;gap:7px}
+.sw{width:11px;height:11px;border-radius:3px;display:inline-block;border:1px solid rgba(255,255,255,.25)}
+#help{position:absolute;left:14px;bottom:12px;color:var(--muted);font-size:11.5px;background:rgba(20,23,29,.6);padding:4px 9px;border-radius:8px}
+body.tour #panel{display:none}
+.av .ph{width:42px;height:52px;border-radius:7px;background:#2c3240;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--muted)}
+#avatars{grid-template-columns:repeat(auto-fill,minmax(50px,1fr))}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px}
+.grid2 label,.sliders label{display:flex;flex-direction:column;font-size:10.5px;color:var(--muted);gap:2px}
+.sliders{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
+.sliders input{padding:0;accent-color:var(--accent)}
+.row{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+.row select{width:auto;flex:1}
+.status{font-size:11px;color:var(--muted);margin-top:6px}
+.modal{position:fixed;inset:0;background:rgba(5,6,9,.72);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
+.modal.hidden{display:none}
+.mbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;width:min(1040px,100%);max-height:100%;overflow:auto}
+.mhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.mbox p{color:var(--muted);font-size:12.5px;margin:4px 0 10px}
+.mbody{display:flex;gap:14px;flex-wrap:wrap}
+#fmCanvas{flex:1 1 560px;min-width:0;max-width:100%;background:#0d0f13;border-radius:10px;cursor:crosshair;touch-action:none}
+.prev{display:flex;flex-direction:column;gap:8px;width:220px}
+#fmPrev{width:220px;height:275px;border-radius:10px;background:repeating-conic-gradient(#20242c 0 25%,#181b22 0 50%) 0 0/16px 16px}
+.prev label{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.prev label input{width:auto}
+#sheetBtn{display:none}
+.dlg{position:fixed;inset:0;background:rgba(5,6,9,.7);display:flex;align-items:center;justify-content:center;z-index:30;padding:20px}
+.dlg.hidden{display:none}
+.dlg .box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;max-width:420px;width:100%}
+.dlg .box p{margin:0 0 14px;line-height:1.5}
+.dlg .row{justify-content:flex-end}
+/* ---------- catalogul magazinului ---------- */
+button.wide{width:100%;margin:2px 0 8px}
+button.mini{padding:1px 7px;font-size:12px;margin-left:5px;line-height:1.5}
+.sh-r{display:flex;align-items:center}
+textarea{background:#12151b;border:1px solid var(--line);color:var(--text);border-radius:7px;padding:6px;font:12px/1.45 ui-monospace,Consolas,monospace;width:100%;resize:vertical;min-width:0}
+#catModal .mbox{width:min(1180px,100%);height:min(880px,100%);display:flex;flex-direction:column}
+.catf{margin:2px 0 10px}
+.catf input{flex:2 1 200px;width:auto}
+.catf select{flex:1 1 150px}
+#catGrid{flex:1;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));grid-auto-rows:max-content;gap:10px;align-content:start;min-height:120px}
+.pc{background:var(--panel2);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.pc .im{position:relative;aspect-ratio:4/5;background:#ebe8e3;flex:none}
+.pc .im img{width:100%;height:100%;object-fit:cover;display:block}
+.pc .badge{position:absolute;left:8px;top:8px;background:var(--bad);color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:12px}
+.pc .bd{padding:8px 10px 10px;display:flex;flex-direction:column;gap:4px;flex:1}
+.pc .nm{font-weight:600;font-size:13px}
+.pc .mk{color:var(--muted);font-size:11px}
+.pc .pr{font-size:15px;font-weight:700;color:var(--accent)}
+.pc .pr s{color:var(--muted);font-weight:400;font-size:12px;margin-left:6px}
+.szs{display:flex;flex-wrap:wrap;gap:3px}
+.szs span{font-size:10.5px;border:1px solid var(--line);border-radius:6px;padding:1px 5px;color:var(--muted)}
+.szs span.rec{border-color:var(--ok);color:var(--ok);font-weight:700}
+.szs span.out{text-decoration:line-through;opacity:.5}
+.rec-l{font-size:11px;color:var(--muted)}
+.rec-l b{color:var(--ok)}
+.pc .act{display:flex;gap:5px;margin-top:auto;padding-top:4px}
+.pc .act button{flex:1}
+.pc .act .edit{display:none;flex:none}
+#catModal.admin .pc .act .edit{display:block}
+#catAdmin{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+#catAdmin summary{cursor:pointer;color:var(--muted);font-size:12.5px}
+label.blk{display:flex;flex-direction:column;gap:3px;font-size:11px;color:var(--muted);margin-top:8px}
+.prod-line{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.prod-line img{width:38px;height:48px;object-fit:cover;border-radius:6px;background:#ebe8e3;flex:none}
+.prod-line div{flex:1;min-width:0;font-size:12px}
+.prod-line div b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-line div span{color:var(--muted);font-size:11px}
+.slot-c.prod{grid-template-columns:minmax(0,1fr) auto}
+#cart .ci{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:4px 0;border-bottom:1px solid var(--line)}
+#cart .tot{display:flex;justify-content:space-between;font-weight:700;padding:6px 0;font-size:13.5px}
+#cart .tot b{color:var(--accent)}
+#cart .empty{color:var(--muted);font-size:12px}
+.out-l{color:var(--bad);font-size:11px}
+#cmpBar{position:absolute;left:50%;transform:translateX(-50%);bottom:16px;display:flex;gap:10px;align-items:center;background:rgba(20,23,29,.9);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:14px;padding:8px 12px;flex-wrap:wrap;justify-content:center;max-width:calc(100% - 24px);z-index:5}
+#cmpBar.hidden{display:none}
+#cmpBar .side{display:flex;gap:6px;align-items:center;font-size:12.5px}
+#cmpBar select{width:auto}
+#pModal .mbox{width:min(980px,100%)}
+.pgrid{display:flex;gap:14px;flex-wrap:wrap}
+.pform{flex:1 1 380px;align-content:start}
+.pform .full{grid-column:1 / -1}
+.chk{display:flex;gap:12px;flex-wrap:wrap;align-items:center;min-height:30px}
+.grid2 .chk label{flex-direction:row;align-items:center;gap:4px;font-size:12.5px;color:var(--text)}
+.chk input{width:auto}
+.pimg{flex:0 1 320px;display:flex;flex-direction:column;gap:6px;min-width:0}
+#pCanvas{width:100%;height:auto;background:#ebe8e3;border-radius:10px;touch-action:none;cursor:crosshair}
+.pimg label{display:flex;flex-direction:column;font-size:10.5px;color:var(--muted);gap:2px}
+.row.end{margin-top:12px;align-items:center}
+.wl{padding-left:20px;margin:0 0 10px;line-height:1.6;font-size:13.5px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--accent);color:var(--text);padding:9px 14px;border-radius:10px;z-index:40;font-size:13px;max-width:calc(100% - 32px)}
+/* ---------- telefon / tabletă mică: scena pe tot ecranul, panoul ca foaie glisantă ---------- */
+@media (max-width:820px){
+  #app{display:block;position:relative}
+  #stage{position:absolute;inset:0}
+  #panel{position:fixed;left:0;right:0;bottom:0;width:auto;height:62dvh;max-height:62vh;border-right:none;border-top:1px solid var(--line);
+    border-radius:16px 16px 0 0;z-index:10;transform:translateY(105%);transition:transform .28s ease;box-shadow:0 -10px 30px rgba(0,0,0,.45);
+    padding-bottom:env(safe-area-inset-bottom)}
+  body.sheet #panel{transform:none}
+  #panel header{padding:10px 14px 8px}
+  #panel header p{display:none}
+  #sheetBtn{display:block;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom));z-index:11;
+    padding:11px 20px;border-radius:24px;font-size:15px;font-weight:600;background:var(--accent);color:#1a1408;border:none;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+  body.sheet #sheetBtn{bottom:calc(62dvh + 10px)}
+  body.tour #sheetBtn{display:none}
+  #toolbar{top:calc(8px + env(safe-area-inset-top));left:8px;right:8px;transform:none;overflow-x:auto;justify-content:flex-start;-webkit-overflow-scrolling:touch}
+  #toolbar{scrollbar-width:none}
+  #toolbar::-webkit-scrollbar{display:none}
+  #toolbar button{white-space:nowrap;flex:none}
+  #sheetBtn{white-space:nowrap}
+  #card{width:auto;left:12px;right:12px;bottom:calc(70px + env(safe-area-inset-bottom))}
+  #help{display:none}
+  input,select{font-size:16px;padding:7px 8px}
+  button{padding:9px 12px;font-size:14px}
+  .body{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .slot-c,.slot-c.nopat{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 46px}
+  .slot-c.nosize{grid-template-columns:minmax(0,1fr) 46px}
+  .actions{flex-wrap:wrap}
+  .actions button{flex:1 1 auto}
+  #panel,#scroll{overflow-x:hidden}
+  .slot-c .pa{grid-column:1 / -1}
+  .sliders{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .modal{padding:0}
+  .mbox{border-radius:0;height:100%;padding:calc(10px + env(safe-area-inset-top)) 12px calc(10px + env(safe-area-inset-bottom))}
+  .mbody{flex-direction:column}
+  #fmCanvas{flex:none;width:100%;height:auto}
+  .prev{width:100%;flex-direction:row;flex-wrap:wrap;align-items:center}
+  #fmPrev{width:110px;height:137px}
+  .lbl{font-size:12px;padding:3px 10px}
+  #catModal .mbox{height:100%;display:block;overflow:auto}
+  #catGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;overflow:visible}
+  .pc .bd{padding:7px 8px 9px}
+  #cmpBar{bottom:calc(70px + env(safe-area-inset-bottom))}
+  .pimg{flex:1 1 100%}
+}
+@media (max-width:400px){             /* telefoane mici (320–400 px) */
+  #toolbar{gap:4px;padding:4px}
+  #toolbar button{padding:7px 9px;font-size:13px}
+  #sheetBtn{padding:10px 16px;font-size:14px}
+}
+</style>
+<script id="errlog">
+// afișează erorile neașteptate direct în pagină (util pentru depanare)
+function __showErr(m) { const d = document.createElement('div'); d.textContent = '⚠ ' + m; d.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:99;background:#5a1d22;color:#fff;padding:6px 10px;border-radius:8px;font:12px sans-serif;max-width:60vw'; (document.body || document.documentElement).appendChild(d); }
+addEventListener('error', e => __showErr(e.message + ' @' + e.lineno));
+addEventListener('unhandledrejection', e => __showErr(String(e.reason)));
+</script>
+<script type="importmap">
+/*IMPORTMAP*/{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<div id="app">
+  <aside id="panel">
+    <header>
+      <h1><b>DoinaDress</b> · Cabină de probă 3D</h1>
+      <p>Alege avatarul, articolele și mărimea fiecăruia. Potrivirea se calculează din măsurile corpului.</p>
+    </header>
+    <div id="scroll">
+      <div id="avatars"></div>
+      <h2>Model</h2>
+      <div class="grid2">
+        <label>Nume<input id="mNume" placeholder="ex. Gică"></label>
+        <label>Rol<input id="mRol" placeholder="ex. Bărbat"></label>
+        <label>Gen<select id="mGen"><option value="m">masculin</option><option value="f">feminin</option></select></label>
+        <label>Vârstă<select id="mVarsta"><option value="adult">adult</option><option value="adolescent">adolescent</option><option value="copil">copil</option></select></label>
+        <label>Coafură<select id="mPar"><option value="scurt">scurt</option><option value="tepi">scurt, țepos</option><option value="pixie">pixie</option><option value="bob">bob (la bărbie)</option><option value="lung">lung (la umeri)</option><option value="coada">coadă de cal</option><option value="impletitura">împletitură</option><option value="bob2">bob drept</option><option value="scurt3">scurt, ondulat</option><option value="afro">afro</option><option value="chel">fără păr</option></select></label>
+        <label>Culoare păr<input id="mParC" type="color"></label>
+        <label>Culoare piele<input id="mPiele" type="color"></label>
+        <label>&nbsp;<button id="mFata">📷 Schimbă fața…</button></label>
+      </div>
+      <div class="sliders">
+        <label>Mărime față<input id="fScale" type="range" min=".8" max="1.25" step=".01"></label>
+        <label>Față sus / jos<input id="fDy" type="range" min="-3" max="3" step=".1"></label>
+        <label>Luminozitate<input id="fBright" type="range" min=".6" max="1.6" step=".02"></label>
+        <label>Lățime mască<input id="fMask" type="range" min=".3" max=".5" step=".005"></label>
+      </div>
+      <div class="row">
+        <select id="mSablon" title="Șablon pentru modelul nou"></select>
+        <button id="mNou">+ Model nou</button>
+        <button id="mDup">Duplică</button>
+        <button id="mDel">Șterge</button>
+      </div>
+      <h2>Măsurile corpului (cm / nr. pantof)</h2>
+      <div class="body" id="body"></div>
+      <h2>Ținută</h2>
+      <button id="catOpen" class="primary wide">🛍 Alege din catalogul magazinului</button>
+      <div id="slots"></div>
+      <h2>Coș</h2>
+      <div id="cart"></div>
+      <h2>Baza de modele</h2>
+      <div class="row">
+        <button id="dbExport">⬇ Exportă baza</button>
+        <button id="dbImport">⬆ Importă / actualizează</button>
+        <button id="dbReset">Revino la baza inițială</button>
+        <input id="dbFile" type="file" accept=".json,application/json" hidden>
+      </div>
+      <div class="status" id="dbStatus"></div>
+      <h2>Afișare</h2>
+      <div class="grid2">
+        <label>Calitate imagine<select id="qSel">
+          <option value="auto">Automată (recomandat)</option><option value="inalta">Înaltă</option>
+          <option value="medie">Medie</option><option value="economic">Economică (baterie)</option></select></label>
+        <label>&nbsp;<span class="status" id="qInfo"></span></label>
+        <label>Corp 3D<select id="corpSel"><option value="realist">Realist (MakeHuman)</option><option value="simplu">Simplu (rapid)</option></select></label>
+        <label>&nbsp;<span class="status" id="corpInfo"></span></label>
+      </div>
+    </div>
+    <div class="actions">
+      <button id="btnReset" title="Readuce măsurile și ținuta modelului selectat la valorile inițiale">Resetează</button>
+      <button id="btnPng">Salvează imagine</button>
+      <button id="btnTour2" class="primary" style="margin-left:auto">Prezentare 3D ▶</button>
+    </div>
+  </aside>
+  <main id="stage">
+    <div id="labels"></div>
+    <div id="toolbar">
+      <button id="btnCat">🛍 Catalog</button>
+      <button id="btnTour" class="primary">Prezentare 3D ▶</button>
+      <button id="btnAll">Toată familia</button>
+      <button id="btnFocus">Avatar selectat</button>
+      <button id="btnSpin">Rotire: oprită</button>
+    </div>
+    <div id="card"></div>
+    <div id="cmpBar" class="hidden"></div>
+    <button id="sheetBtn">☰ Model și ținută</button>
+    <div id="help">Trage = rotire · Rotiță = zoom · Click dreapta = deplasare · Click pe nume = selectare</div>
+  </main>
+</div>
+<div id="dlg" class="dlg hidden"><div class="box"><p id="dlgMsg"></p><div class="row"><button id="dlgNo">Renunță</button><button id="dlgYes" class="primary">Da</button></div></div></div>
+<div id="faceModal" class="modal hidden">
+  <div class="mbox">
+    <div class="mhead"><b>Fața pentru: <span id="fmName"></span></b><button id="fmClose">✕</button></div>
+    <p>1) Alege o fotografie (față din față, bine luminată). 2) Mărește cu rotița sau cu ＋, trage ca să muți imaginea.
+       3) Click pe <b>ochiul din stânga imaginii</b>, apoi pe <b>ochiul din dreapta</b>. Fața se aliniază automat.</p>
+    <div class="row" style="margin:0 0 10px">
+      <input id="fmFile" type="file" accept="image/*" style="flex:1">
+      <button id="fmZin">＋</button><button id="fmZout">－</button><button id="fmFit">Încadrează</button>
+    </div>
+    <div class="mbody">
+      <canvas id="fmCanvas" width="760" height="520"></canvas>
+      <div class="prev">
+        <canvas id="fmPrev" width="256" height="320"></canvas>
+        <label><input id="fmSkin" type="checkbox" checked> potrivește culoarea pielii</label>
+        <button id="fmRedo">Refă punctele ochilor</button>
+        <button id="fmUse" class="primary" disabled>Folosește această față</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="catModal" class="modal hidden">
+  <div class="mbox">
+    <div class="mhead"><b>Catalog <span id="catShop"></span> · pentru <span id="catFor"></span></b><button id="catClose">✕</button></div>
+    <div class="row catf">
+      <input id="catQ" placeholder="Caută: rochie, blugi, cod produs…">
+      <select id="catSlot"></select>
+      <select id="catPentru"><option value="auto">Potrivite pentru avatar</option><option value="">Toate</option><option value="femei">Femei</option><option value="barbati">Bărbați</option><option value="copii">Copii</option></select>
+      <select id="catSort"><option value="">Ordinea din catalog</option><option value="pret">Preț crescător</option><option value="-pret">Preț descrescător</option><option value="nume">Nume</option></select>
+    </div>
+    <div id="catGrid"></div>
+    <details id="catAdmin">
+      <summary>Administrare catalog (pentru magazin)</summary>
+      <div class="row">
+        <button id="catNew" class="primary">+ Produs nou</button>
+        <button id="catImport">⬆ Importă CSV / JSON + poze</button>
+        <button id="catExpJson">⬇ Exportă catalog (JSON)</button>
+        <button id="catExpCsv">⬇ Exportă CSV</button>
+        <button id="catReset">Revino la catalogul inițial</button>
+        <input id="catFile" type="file" multiple accept=".csv,.json,.txt,text/csv,application/json,image/*" hidden>
+      </div>
+      <label class="blk">Tabele de mărimi ale mărcilor: <span>[id] nume · măsura (bust / talie / sold / pantof / inaltime), apoi câte un rând „mărime min-max” în cm</span>
+        <textarea id="catCharts" rows="9" spellcheck="false"></textarea></label>
+      <div class="row"><button id="catChartsSave">Salvează tabelele</button></div>
+      <div class="status" id="catStatus"></div>
+    </details>
+  </div>
+</div>
+<div id="pModal" class="modal hidden">
+  <div class="mbox">
+    <div class="mhead"><b id="pTitle">Produs</b><button id="pClose">✕</button></div>
+    <div class="pgrid">
+      <div class="pform grid2">
+        <label>Nume<input id="pNume" placeholder="ex. Rochie cu buline"></label>
+        <label>Cod produs<input id="pCod" placeholder="ex. DD-1001"></label>
+        <label>Marcă<input id="pMarca"></label>
+        <label>Categorie<select id="pSlot"></select></label>
+        <label>Tip (forma 3D)<select id="pTip"></select></label>
+        <label>Pentru<div class="chk" id="pPentru"><label><input type="checkbox" value="femei">Femei</label><label><input type="checkbox" value="barbati">Bărbați</label><label><input type="checkbox" value="copii">Copii</label></div></label>
+        <label>Preț<input id="pPret" type="number" min="0" step="0.01"></label>
+        <label>Preț vechi (reducere)<input id="pPretV" type="number" min="0" step="0.01"></label>
+        <label>Culoare<input id="pCul" type="color"></label>
+        <label>Model material<select id="pModel"></select></label>
+        <label>Mărimi și stoc<input id="pMarimi" placeholder="S:3, M:5, L:0"></label>
+        <label>Tabel de mărimi<select id="pTabel"></select></label>
+        <label class="full">Descriere<textarea id="pDesc" rows="2" style="font-family:inherit"></textarea></label>
+      </div>
+      <div class="pimg">
+        <input id="pFile" type="file" accept="image/*">
+        <canvas id="pCanvas" width="400" height="500"></canvas>
+        <div class="hint" id="pHint"></div>
+        <label id="pCmL">Mărimea desenului pe haină (cm)<input id="pCm" type="number" min="1" max="200" step="0.5"></label>
+        <div class="row"><button id="pNoPhoto">Fără poză</button><button id="pAutoColor">Culoare din poză</button></div>
+      </div>
+    </div>
+    <div class="row end"><button id="pDel">Șterge produsul</button><span style="flex:1"></span><button id="pCancel">Renunță</button><button id="pSave" class="primary">Salvează</button></div>
+  </div>
+</div>
+
+<div id="welcome" class="dlg hidden">
+  <div class="box">
+    <h3 style="margin:0 0 8px">Bine ai venit în cabina de probă!</h3>
+    <ol class="wl">
+      <li><b>Alege un avatar</b>: Femeie, Bărbat, Adolescentă, Adolescent, Fetiță sau Băiețel.</li>
+      <li>Scrie <b>măsurile tale</b>: înălțime, bust, talie, șold și numărul de pantof.</li>
+      <li>Dacă vrei, <b>pune-ți fața</b> dintr-o poză: 📷 Schimbă fața.</li>
+      <li>Deschide <b>🛍 Catalog</b> și apasă <b>Probează</b>. Îți recomandăm mărimea potrivită.</li>
+    </ol>
+    <p class="status">Pozele și măsurile tale rămân doar pe acest dispozitiv. Nu se trimit nicăieri.</p>
+    <div class="row" style="justify-content:flex-end"><button id="wlGo" class="primary">Încep</button></div>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+
+// versiunea: 'intern' (magazin / familia) sau 'clienti' (manechine, fără administrare) – setată de src/build.py
+const MODE = /*MODE*/'intern', CLIENT = MODE === 'clienti';
+const CORP = { mode: 'realist' };
+try { CORP.mode = localStorage.getItem('doinadress_corp') || 'realist'; } catch (e) {}
+const S = 0.01;              // 1 cm in metri
+const TAU = Math.PI * 2;
+const lerp = (a, b, t) => a + (b - a) * t;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const interp = (tab, t) => {
+  if (t <= tab[0][0]) return tab[0][1];
+  for (let i = 1; i < tab.length; i++) {
+    if (t <= tab[i][0]) {
+      const [t0, v0] = tab[i - 1], [t1, v1] = tab[i];
+      return lerp(v0, v1, (t - t0) / (t1 - t0));
+    }
+  }
+  return tab[tab.length - 1][1];
+};
+
+// ------------------------------------------------------------------ catalog
+const SLOTS = ['top', 'bottom', 'dress', 'outer', 'shoes', 'bag', 'acc1', 'acc2'];
+const SLOT_LABEL = { top: 'Bluză / cămașă / pulover', bottom: 'Pantaloni / fustă', dress: 'Rochie', outer: 'Geacă / hanorac / vestă',
+  shoes: 'Încălțăminte', bag: 'Geantă', acc1: 'Accesoriu 1', acc2: 'Accesoriu 2' };
+const TYPES = {
+  top: {
+    tricou:  { n: 'Tricou', sleeve: .3, ease: 8, th: .35 },
+    bluza:   { n: 'Bluză', sleeve: 1, ease: 6, th: .35, collar: 'rotund' },
+    camasa:  { n: 'Cămașă', sleeve: 1, ease: 10, th: .35, collar: 'camasa', buttons: true },
+    polo:    { n: 'Tricou polo', sleeve: .3, ease: 8, th: .4, collar: 'polo' },
+    helanca: { n: 'Helancă', sleeve: 1, ease: 2, th: .45, collar: 'inalt' },
+    pulover: { n: 'Pulover', sleeve: 1, ease: 10, th: 1.0 },
+  },
+  bottom: {
+    pantaloni:   { n: 'Pantaloni', len: 1, ease: 4, th: .4, cut: .6 },
+    blugi:       { n: 'Blugi', len: 1, ease: 2, th: .5, cut: .52 },
+    scurti:      { n: 'Pantaloni scurți', len: .4, ease: 4, th: .4, cut: .72 },
+    fusta:       { n: 'Fustă', skirt: true, hem: 'genunchi', ease: 2, th: .4, flare: .2 },
+    fusta_lunga: { n: 'Fustă lungă', skirt: true, hem: 'gamba', ease: 2, th: .4, flare: .14 },
+  },
+  dress: {
+    rochie:        { n: 'Rochie mânecă lungă', sleeve: 1, ease: 6, th: .5, hem: 'genunchi', flare: .16 },
+    rochie_scurta: { n: 'Rochie mânecă scurtă', sleeve: .3, ease: 6, th: .5, hem: 'genunchi', flare: .22 },
+    rochie_lunga:  { n: 'Rochie lungă', sleeve: 1, ease: 6, th: .5, hem: 'glezna', flare: .1 },
+    sarafan:       { n: 'Sarafan', sleeve: 0, ease: 8, th: .7, hem: 'genunchi', flare: .24, sarafan: true },
+  },
+  outer: {
+    geaca:   { n: 'Geacă', sleeve: 1, ease: 18, th: 1.3, gap: .6, hem: -5, collar: 'geaca', pockets: true },
+    hanorac: { n: 'Hanorac', sleeve: 1, ease: 16, th: 1.1, gap: 0, hem: -4, hood: true, kangaroo: true },
+    vesta:   { n: 'Vestă', sleeve: 0, ease: 8, th: .7, gap: 0, vneck: true, hem: -1, buttons: true },
+    sacou:   { n: 'Sacou', sleeve: 1, ease: 12, th: .9, gap: .2, vneck: true, hem: -12, buttons: true },
+    palton:  { n: 'Palton', sleeve: 1, ease: 20, th: 1.6, gap: .14, hem: 'genunchi', collar: 'geaca', buttons: true, flare: .07 },
+  },
+  shoes: { pantofi: { n: 'Pantofi' }, adidasi: { n: 'Adidași' }, cizme: { n: 'Cizme' }, balerini: { n: 'Balerini' }, toc: { n: 'Pantofi cu toc' }, sandale: { n: 'Sandale' } },
+  bag: { geanta: { n: 'Geantă de umăr' }, poseta: { n: 'Poșetă (în mână)' }, rucsac: { n: 'Rucsac' }, borseta: { n: 'Borsetă' } },
+  acc: { colier: { n: 'Colier cu pandantiv' }, papion: { n: 'Papion' }, cravata: { n: 'Cravată' }, esarfa: { n: 'Eșarfă' },
+         curea: { n: 'Curea' }, ochelari: { n: 'Ochelari' }, palarie: { n: 'Pălărie' }, sapca: { n: 'Șapcă' } },
+};
+const typesFor = slot => TYPES[slot.startsWith('acc') ? 'acc' : slot];
+const PATTERNS = { uni: 'Uni', dungi: 'Dungi verticale', dungi_or: 'Dungi orizontale', reiat: 'Reiat', carouri: 'Carouri',
+  dantela: 'Dantelă', denim: 'Denim', catifea: 'Catifea', buline: 'Buline' };
+
+// ------------------------------------------------------------------ baza de modele (versionată, salvată în browser)
+const SCHEMA = 2;
+const clone = o => JSON.parse(JSON.stringify(o));
+function normalizeModel(m, i = 0) {
+  m.id ||= 'm' + Date.now().toString(36) + i;
+  m.rol ??= ''; m.nume ??= '';
+  m.gen = m.gen === 'f' ? 'f' : 'm';
+  if (!['adult', 'adolescent', 'copil'].includes(m.varsta)) m.varsta = 'adult';
+  m.skin ||= '#c8957f';
+  m.hair = { style: 'scurt', color: '#2a201a', ...(m.hair || {}) };
+  m.faceAdj = { scale: 1, dy: 0, bright: 1, mask: .42, ...(m.faceAdj || {}) };
+  m.face ??= null;
+  m.body = { height: 170, chest: 96, waist: 84, hips: 98, shoe: 41, ...(m.body || {}) };
+  m.outfit ||= {};
+  SLOTS.forEach(s => { if (!(s in m.outfit)) m.outfit[s] = null; });
+  return m;
+}
+// actualizează orice bază mai veche la schema curentă (pașii se adaugă aici la versiunile viitoare)
+function migrate(x) {
+  if (!x || typeof x !== 'object' || !Array.isArray(x.modele)) throw new Error('Fișierul nu este o bază de modele DoinaDress.');
+  let v = +x.schema || 1;
+  if (v < 2) {          // schema 1: „nume” era rolul; nu existau gen / vârstă / reglaje față
+    x.modele.forEach(m => {
+      if (!m.rol) { m.rol = m.nume || ''; m.nume = ''; }
+      m.varsta ||= m.sex === 'k' ? 'copil' : 'adult';
+      m.gen ||= m.sex === 'f' ? 'f' : 'm';
+      delete m.sex;
+    });
+    v = 2;
+  }
+  // if (v < 3) { ...transformări...; v = 3; }
+  x.app = 'DoinaDress'; x.schema = v; x.revizie = +x.revizie || 1;
+  x.modele.forEach(normalizeModel);
+  return x;
+}
+const DEFAULT_DB = migrate(/*DB*/null);
+
+// ------------------------------------------------------------------ catalogul magazinului: produse, prețuri, stoc, tabele de mărimi
+const CAT_SCHEMA = 1;
+const PENTRU = { femei: 'Femei', barbati: 'Bărbați', copii: 'Copii' };
+const CAT_SLOTS = { top: 'Bluze, cămăși, pulovere', bottom: 'Pantaloni și fuste', dress: 'Rochii', outer: 'Geci, hanorace, sacouri',
+  shoes: 'Încălțăminte', bag: 'Genți', acc: 'Accesorii' };
+const MASURA = { bust: 'chest', talie: 'waist', sold: 'hips', pantof: 'shoe', inaltime: 'height' };
+const MASURA_N = { bust: 'bust', talie: 'talie', sold: 'șold', pantof: 'nr. pantof', inaltime: 'înălțime' };
+const GARMENT = ['top', 'bottom', 'dress', 'outer'];
+function normalizeProduct(p, i = 0) {
+  p.id ||= 'p' + Date.now().toString(36) + i;
+  p.cod = String(p.cod ?? ''); p.nume ||= 'Produs'; p.marca = String(p.marca ?? '');
+  if (!CAT_SLOTS[p.slot]) p.slot = 'top';
+  if (!TYPES[p.slot][p.tip]) p.tip = Object.keys(TYPES[p.slot])[0];
+  p.pentru = (Array.isArray(p.pentru) ? p.pentru : String(p.pentru || '').split(/[|,;\s]+/)).filter(x => PENTRU[x]);
+  if (!p.pentru.length) p.pentru = Object.keys(PENTRU);
+  p.pret = +p.pret || 0; p.pretVechi = +p.pretVechi || 0;
+  if (!/^#[0-9a-f]{6}$/i.test(p.culoare)) p.culoare = '#888888';
+  if (!(p.model in PATTERNS) && p.model !== 'foto') p.model = 'uni';
+  if (!p.marimi || typeof p.marimi !== 'object' || Array.isArray(p.marimi)) p.marimi = {};
+  p.tabel = String(p.tabel ?? ''); p.descriere = String(p.descriere ?? '');
+  p.poza ??= null; p.desen ??= null;                 // desen = { img, cm, rect }: imprimeul hainei, decupat din poză
+  if (p.model === 'foto' && !p.desen?.img) p.model = 'uni';
+  return p;
+}
+function migrateCatalog(x) {
+  if (!x || typeof x !== 'object' || !Array.isArray(x.produse)) throw new Error('Fișierul nu este un catalog DoinaDress.');
+  x.app = 'DoinaDress-catalog'; x.schema = CAT_SCHEMA; x.revizie = +x.revizie || 1;
+  x.magazin ||= 'DoinaDress'; x.moneda ||= 'lei';
+  if (!x.tabele || typeof x.tabele !== 'object') x.tabele = {};
+  for (const [k, tb] of Object.entries(x.tabele)) if (!MASURA[tb?.masura] || !Array.isArray(tb.marimi)) delete x.tabele[k];
+  x.produse.forEach(normalizeProduct);
+  return x;
+}
+const DEFAULT_CAT = migrateCatalog(/*CATALOG*/null);
+
+const idb = {
+  open: () => new Promise((res, rej) => {
+    const r = indexedDB.open(CLIENT ? 'doinadress_clienti' : 'doinadress', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  }),
+  async get(k) { const d = await this.open(); return new Promise((res, rej) => { const q = d.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); },
+  async set(k, v) { const d = await this.open(); return new Promise((res, rej) => { const tx = d.transaction('kv', 'readwrite'); tx.objectStore('kv').put(v, k); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); },
+};
+
+let DB = null, storeOK = true;
+try { DB = await Promise.race([idb.get('baza'), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 2500))]); }
+catch (e) { storeOK = false; }
+try { if (DB) DB = migrate(DB); } catch (e) { DB = null; }
+if (!DB) { DB = clone(DEFAULT_DB); DB.revizieBaza = DEFAULT_DB.revizie; }
+else if ((DB.revizieBaza || 0) < DEFAULT_DB.revizie) {
+  // upgrade: fișierul HTML are o bază mai nouă -> adaugă modelele noi și înlocuiește modelele pe care nu le-ai modificat
+  DEFAULT_DB.modele.forEach(m => {
+    const i = DB.modele.findIndex(x => x.id === m.id);
+    if (i < 0) DB.modele.push(clone(m));
+    else if (!DB.modele[i].modificat) DB.modele[i] = clone(m);
+  });
+  DB.revizieBaza = DEFAULT_DB.revizie;
+}
+try {           // preia salvările din versiunea anterioară a aplicației (localStorage)
+  const old = JSON.parse(localStorage.getItem('doinadress3d_v1') || 'null');
+  if (Array.isArray(old)) {
+    ['barbat', 'femeie', 'baietel', 'fetita', 'baiat_ado', 'fata_ado'].forEach((id, i) => {
+      const m = DB.modele.find(x => x.id === id);
+      if (m && old[i]) { m.body = old[i].body; m.outfit = old[i].outfit; normalizeModel(m); m.modificat = true; }
+    });
+    localStorage.removeItem('doinadress3d_v1');
+  }
+} catch (e) {}
+let AVS = DB.modele;
+
+let CAT = null;
+if (storeOK) try {
+  CAT = await Promise.race([idb.get('catalog'), new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 2500))]);
+  if (CAT) CAT = migrateCatalog(CAT);
+} catch (e) { CAT = null; }
+if (!CAT) { CAT = clone(DEFAULT_CAT); CAT.revizieBaza = DEFAULT_CAT.revizie; }
+else if ((CAT.revizieBaza || 0) < DEFAULT_CAT.revizie) {
+  // upgrade: produsele noi se adaugă, cele nemodificate în magazin se înlocuiesc, cele editate se păstrează
+  DEFAULT_CAT.produse.forEach(p => {
+    const i = CAT.produse.findIndex(x => x.id === p.id);
+    if (i < 0) CAT.produse.push(clone(p)); else if (!CAT.produse[i].modificat) CAT.produse[i] = clone(p);
+  });
+  for (const [k, tb] of Object.entries(DEFAULT_CAT.tabele)) if (!CAT.tabele[k]?.modificat) CAT.tabele[k] = clone(tb);
+  CAT.revizieBaza = DEFAULT_CAT.revizie;
+}
+let saveCT = 0;
+function saveCat(p) {
+  if (p) p.modificat = true;
+  clearTimeout(saveCT);
+  saveCT = setTimeout(async () => { CAT.actualizat = new Date().toISOString(); try { await idb.set('catalog', CAT); } catch (e) {} }, 300);
+}
+const productById = id => id ? CAT.produse.find(p => p.id === id) || null : null;
+const money = v => (Math.round(v * 100) / 100).toLocaleString('ro-RO', { minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2 }) + ' ' + CAT.moneda;
+const pentruOf = a => a.varsta === 'copil' ? 'copii' : a.gen === 'f' ? 'femei' : 'barbati';
+const slotOfProduct = p => p.slot === 'acc' ? 'acc1' : p.slot;
+const stockOf = (p, s) => { const k = Object.keys(p.marimi).find(x => x.toUpperCase() === String(s ?? '').trim().toUpperCase()); return k == null ? null : +p.marimi[k]; };
+// imprimeurile din poze se încarcă înainte de construirea scenei
+const desenImg = new Map();
+function loadDesen(p) {
+  if (!p.desen?.img) return Promise.resolve();
+  const k = p.desen.img;
+  if (!desenImg.has(k)) {
+    const im = new Image(), e = { im, ok: false };
+    e.ready = new Promise(r => { im.onload = () => { e.ok = true; r(); }; im.onerror = () => r(); });
+    im.src = k; desenImg.set(k, e);
+  }
+  return desenImg.get(k).ready;
+}
+await Promise.all(CAT.produse.map(loadDesen));
+const sexOf = a => a.varsta === 'copil' ? 'k' : a.gen;
+const displayName = a => a.nume ? `${a.nume} · ${a.rol}` : (a.rol || 'Model');
+const shortName = a => a.nume || a.rol || 'Model';
+
+let saveT = 0;
+function save(m) {
+  if (m) m.modificat = true;
+  clearTimeout(saveT);
+  saveT = setTimeout(async () => {
+    DB.actualizat = new Date().toISOString();
+    try { await idb.set('baza', DB); storeOK = true; } catch (e) { storeOK = false; }
+    dbStatus();
+  }, 300);
+}
+function dbStatus(msg) {
+  const el = document.getElementById('dbStatus'); if (!el) return;
+  const when = DB.actualizat ? new Date(DB.actualizat).toLocaleString('ro-RO') : '—';
+  el.textContent = msg || (storeOK
+    ? `${AVS.length} modele · schema ${DB.schema} · revizie ${DB.revizieBaza} · salvat automat în browser (${when})`
+    : 'Atenție: browserul nu permite salvarea locală — folosește „Exportă baza”.');
+}
+
+// ------------------------------------------------------------------ mărimi
+const LETTERS = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL'];
+const kidSize = h => ({ height: h, chest: .42 * h + 11, waist: .30 * h + 20, hips: .55 * h - 4 });
+
+function parseSize(raw, sex, slot) {
+  const s = String(raw ?? '').trim().toUpperCase().replace(/\s+/g, '').replace(',', '.');
+  if (!s) return null;
+  if (slot === 'shoes') { const n = parseFloat(s); return isFinite(n) ? { eu: n } : null; }
+  if (slot === 'bag') return { bag: ({ XS: .65, S: .8, M: 1, L: 1.2, XL: 1.35 })[s] ?? 1 };
+  let m = s.match(/^W(\d{2})(?:L(\d{2}))?$/);
+  if (m) {
+    const w = +m[1] * 2.54;
+    return { waist: w, chest: w + (sex === 'f' ? 20 : 12), hips: w + (sex === 'f' ? 26 : 14), inseam: m[2] ? +m[2] * 2.54 : null };
+  }
+  const li = LETTERS.indexOf(s);
+  if (li >= 0) {
+    if (sex === 'k') return kidSize(104 + (li - 0) * 12);
+    if (sex === 'm') { const c = 82 + li * 6; return { chest: c, waist: c - 12, hips: c + 2 }; }
+    const c = 74 + li * 6; return { chest: c, waist: c - 20, hips: c + 6 };
+  }
+  const n = parseFloat(s);
+  if (!isFinite(n)) return null;
+  if (n >= 80) return kidSize(n);                       // mărime pe înălțime (copii: 98…176)
+  if (sex === 'k') return kidSize(6 * n + 80);           // mărime pe vârstă (ani)
+  if (sex === 'm') return { chest: 2 * n, waist: 2 * n - 12, hips: 2 * n + 4 };
+  return { chest: 2 * n + 12, waist: 2 * n - 8, hips: 2 * n + 18 };
+}
+
+function recommend(slot, a) {
+  const b = a.body;
+  if (slot === 'shoes') return String(b.shoe);
+  if (slot === 'bag') return 'M';
+  if (slot.startsWith('acc')) return '';
+  if (sexOf(a) === 'k') return String(Math.round((b.height - 92) / 6) * 6 + 92);
+  if (slot === 'bottom') {
+    const eu = sexOf(a) === 'm' ? Math.round((b.waist + 12) / 4) * 2 : Math.round((b.waist + 8) / 4) * 2;
+    return `${eu} / W${Math.round(b.waist / 2.54)}`;
+  }
+  let best = 'M', bd = 1e9;
+  LETTERS.forEach(L => { const p = parseSize(L, sexOf(a), slot); const d = Math.abs(p.chest - b.chest); if (d < bd) { bd = d; best = L; } });
+  return `${best} / ${sexOf(a) === 'm' ? Math.round(b.chest / 4) * 2 : Math.round((b.chest - 12) / 4) * 2}`;
+}
+
+// mărimea aleasă, citită din tabelul mărcii: pentru ce măsuri ale corpului e croită haina
+function chartSpec(slot, item, a) {
+  const p = productById(item?.produs), tb = p && CAT.tabele[p.tabel];
+  const r = tb && tb.marimi.find(x => x.m.toUpperCase() === String(item.size ?? '').trim().toUpperCase());
+  if (!r) return null;
+  const k = MASURA[tb.masura];
+  if (k === 'shoe') return { eu: (r.min + r.max) / 2 };
+  if (k === 'height') return kidSize(r.max);
+  const v = r.max - 1, sex = sexOf(a);                        // haina e croită pentru capătul de sus al intervalului
+  const off = sex === 'f' ? { chest: 0, waist: -20, hips: 6 } : sex === 'k' ? { chest: 0, waist: -6, hips: 2 } : { chest: 0, waist: -12, hips: 2 };
+  const base = v - off[k];
+  return { chest: base + off.chest, waist: base + off.waist, hips: base + off.hips };
+}
+function recommendFor(p, a) {
+  const slot = slotOfProduct(p), sizes = Object.keys(p.marimi);
+  if (slot.startsWith('acc')) return '';
+  const tb = CAT.tabele[p.tabel];
+  if (tb) {
+    const v = a.body[MASURA[tb.masura]]; let best = null, bd = 1e9;
+    for (const r of tb.marimi) {
+      if (sizes.length && stockOf(p, r.m) == null) continue;
+      const d = v < r.min ? r.min - v : v > r.max ? v - r.max : 0;
+      if (d < bd) { bd = d; best = r.m; }
+    }
+    if (best) return best;
+  }
+  if (!sizes.length) return recommend(slot, a).split(' /')[0];
+  if (slot === 'bag') return sizes.find(s => s.toUpperCase() === 'M') || sizes[0];
+  let best = sizes[0], bd = 1e9;
+  for (const s of sizes) {
+    const f = fitOf(slot, { type: p.tip, size: s }, a);
+    const d = slot === 'shoes' ? Math.abs((f.eu ?? 99) - a.body.shoe - .25) : Math.abs((f.d ?? 99) - 1.5);
+    if (d < bd) { bd = d; best = s; }
+  }
+  return best;
+}
+
+// rezultatul probei: eticheta + factorii de scalare folositi la modelare
+function fitOf(slot, item, a) {
+  const res = { label: '—', cls: 'none', k: 1, lf: 1 };
+  if (!item) return res;
+  if (slot.startsWith('acc')) return { ...res, label: 'mărime unică', cls: 'none' };
+  const p = chartSpec(slot, item, a) || parseSize(item.size, sexOf(a), slot);
+  if (!p) return { ...res, label: 'mărime ?', cls: 'warn' };
+  if (slot === 'bag') return { ...res, label: 'mărimea ' + (String(item.size).toUpperCase() || 'M'), cls: 'none', k: p.bag };
+  if (slot === 'shoes') {
+    const d = p.eu - a.body.shoe;
+    const r = d < -.5 ? ['Prea mic', 'bad'] : d <= .5 ? ['Potrivit', 'ok'] : d <= 1.5 ? ['Ușor mare', 'info'] : ['Prea mare', 'bad'];
+    return { label: r[0], cls: r[1], k: 1, lf: 1, eu: p.eu };
+  }
+  const t = typesFor(slot)[item.type] || {};
+  const key = slot === 'bottom' ? 'waist' : 'chest';
+  const body = a.body[key], d = p[key] - body;
+  const r = d < -6 ? ['Prea strâmt', 'bad'] : d < -2 ? ['Strâmt', 'warn'] : d <= 5 ? ['Potrivit', 'ok'] : d <= 11 ? ['Lejer', 'info'] : ['Prea larg', 'bad'];
+  const k = clamp((p[key] + (t.ease || 4)) / body, 1, 1.6);
+  let lf = p.height ? clamp(p.height / a.body.height, .8, 1.2) : clamp(1 + d / 250, .92, 1.12);
+  if (p.inseam) lf = clamp(p.inseam / (dims(a).legL * .98), .8, 1.15);
+  return { label: r[0], cls: r[1], k, lf, d };
+}
+
+// ------------------------------------------------------------------ proporții corp
+function dims(a) {
+  const b = a.body, H = b.height, kid = a.varsta === 'copil', fem = a.gen === 'f';
+  const hh = H / (kid ? 6.4 : 7.6);
+  const neckLen = H * (kid ? .022 : .026);
+  const yHeadC = H - hh / 2, ySh = H - hh - neckLen, yCr = H * (kid ? .455 : .47);
+  const tor = ySh - yCr;
+  const yHip = yCr + tor * .13, yWaist = yCr + tor * .36, yChest = yCr + tor * .72;
+  const rc = b.chest / TAU * (fem && !kid ? .93 : 1), rw = b.waist / TAU, rhp = b.hips / TAU;
+  const neckR = (b.chest / TAU) * (kid ? .37 : fem ? .31 : .36);
+  const prof = [[yCr - 4, rhp * .5], [yCr, rhp * .88], [yHip, rhp], [(yHip + yWaist) / 2, (rhp + rw) / 2 * 1.0], [yWaist, rw],
+    [(yWaist + yChest) / 2, (rw + rc) / 2], [yChest, rc], [yChest + (ySh - yChest) * .5, rc * .98], [ySh - 2, rc * .93],
+    [ySh + .5, rc * .72], [ySh + 2, neckR * 1.45], [ySh + 3.5, neckR * 1.05]];
+  const R = y => interp(prof, y);
+  const FZ = (fem && !kid) ? (y => 1 + .2 * Math.exp(-(((y - (yChest + 1)) / 5.5) ** 2))) : (() => 1);
+  const SX = 1.17, SZ = kid ? .84 : .8;
+  const legX = rhp * .47, thighR = rhp * .53, legTop = yCr + 2, ankleY = H * .045, legL = legTop - ankleY;
+  const ua = (b.chest / TAU) * (kid ? .29 : .3), armLen = H * .33, handLen = H * .105, armA = .17;
+  const jointY = ySh - ua * 1.05, jointX = R(jointY) * SX * .84 + ua * .6;
+  const rh = hh / 2;
+  return { H, kid, fem, hh, rh, neckLen, neckR, yHeadC, ySh, yCr, yHip, yWaist, yChest, R, FZ, SX, SZ,
+    legX, thighR, legTop, ankleY, legL, kneeY: legTop - .45 * legL, ua, armLen, handLen, armA, jointY, jointX };
+}
+const LEG = [[0, 1], [.12, .93], [.45, .6], [.52, .62], [.65, .66], [.88, .42], [1, .4]];
+const ARM = [[0, 1], [.42, .78], [.5, .76], [.6, .8], [.95, .55], [1, .54]];
+
+// ------------------------------------------------------------------ geometrie: învelișuri (corp + haine)
+// rows: [{y, r, gap?, fz?}] în cm; închis sau deschis în față (gap în radiani)
+function shellGeo(rows, { seg = 56, sx = 1, sz = 1 } = {}) {
+  const pos = [], uv = [], idx = [];
+  const rMean = rows.reduce((s, r) => s + r.r, 0) / rows.length;
+  const circ = TAU * rMean * (sx + sz) / 2 / 100;
+  rows.forEach(row => {
+    const g = row.gap || 0, fz = row.fz || 1;
+    for (let j = 0; j <= seg; j++) {
+      const u = j / seg, phi = g / 2 + u * (TAU - g);
+      const c = Math.cos(phi);
+      pos.push(row.r * Math.sin(phi) * sx * S, row.y * S, row.r * c * sz * (c > 0 ? fz : 1) * S);
+      uv.push(u * circ, row.y / 100);
+    }
+  });
+  for (let i = 0; i < rows.length - 1; i++) for (let j = 0; j < seg; j++) {
+    const a = i * (seg + 1) + j, b = a + seg + 1;
+    idx.push(a, a + 1, b, b, a + 1, b + 1);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+
+// ------------------------------------------------------------------ texturi textile
+let MAX_ANISO = 8;   // actualizat după crearea rendererului
+const texCache = new Map();
+function fabricTex(pattern, color) {
+  const key = pattern + color;
+  if (texCache.has(key)) return texCache.get(key);
+  const N = 128, K = 4, c = document.createElement('canvas'); c.width = c.height = N * K;   // desenat în 128, redat la 512 px
+  const g = c.getContext('2d'); g.scale(K, K);
+  const base = new THREE.Color(color);
+  const sh = f => { const cc = base.clone(); cc.lerp(new THREE.Color(f > 0 ? '#ffffff' : '#000000'), Math.abs(f)); return '#' + cc.getHexString(); };
+  g.fillStyle = '#' + base.getHexString(); g.fillRect(0, 0, N, N);
+  let rep = [12, 12];
+  switch (pattern) {
+    case 'dungi':
+      g.fillStyle = sh(.4); g.fillRect(0, 0, 10, N); g.fillStyle = sh(-.35); g.fillRect(52, 0, 5, N);
+      g.fillStyle = sh(.18); g.fillRect(90, 0, 3, N); rep = [40, 1]; break;
+    case 'dungi_or':
+      g.fillStyle = sh(.8); g.fillRect(0, 0, N, 9); g.fillStyle = '#4d4b78'; g.fillRect(0, 9, N, 7);
+      g.fillStyle = sh(-.55); g.fillRect(0, 60, N, 30); g.fillStyle = sh(.8); g.fillRect(0, 90, N, 4); rep = [1, 9]; break;
+    case 'reiat':
+      for (let x = 0; x < N; x += 8) { const gr = g.createLinearGradient(x, 0, x + 8, 0);
+        gr.addColorStop(0, sh(-.25)); gr.addColorStop(.5, sh(.12)); gr.addColorStop(1, sh(-.25)); g.fillStyle = gr; g.fillRect(x, 0, 8, N); }
+      rep = [16, 1]; break;
+    case 'carouri':
+      g.globalAlpha = .45; g.fillStyle = sh(-.5); g.fillRect(0, 40, N, 28); g.fillRect(40, 0, 28, N);
+      g.fillStyle = sh(.5); g.fillRect(0, 100, N, 4); g.fillRect(100, 0, 4, N); g.globalAlpha = 1; rep = [9, 9]; break;
+    case 'dantela':
+      g.strokeStyle = sh(.2); g.lineWidth = 2;
+      for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) {
+        const cx = x * 32 + (y % 2) * 16 + 8, cy = y * 32 + 16;
+        for (let p = 0; p < 6; p++) { const an = p / 6 * TAU; g.beginPath(); g.ellipse(cx + Math.cos(an) * 6, cy + Math.sin(an) * 6, 4.5, 2.6, an, 0, TAU); g.stroke(); }
+        g.beginPath(); g.arc(cx, cy, 2, 0, TAU); g.fillStyle = sh(.4); g.fill();
+      }
+      rep = [24, 24]; break;
+    case 'denim':
+      for (let i = 0; i < 2600; i++) { const x = Math.random() * N, y = Math.random() * N;
+        g.strokeStyle = Math.random() < .5 ? sh(.35) : sh(-.3); g.globalAlpha = .55; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 3, y + 3); g.stroke(); }
+      g.globalAlpha = 1; rep = [7, 7]; break;
+    case 'buline':
+      g.fillStyle = sh(.85);
+      for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) { g.beginPath(); g.arc(x * 32 + (y % 2) * 16 + 8, y * 32 + 16, 5, 0, TAU); g.fill(); }
+      rep = [9, 9]; break;
+    case 'par':
+      for (let i = 0; i < 700; i++) { const x = Math.random() * N; g.strokeStyle = Math.random() < .5 ? sh(.18) : sh(-.35);
+        g.globalAlpha = .45; g.lineWidth = 1 + Math.random(); g.beginPath(); g.moveTo(x, -2); g.lineTo(x + (Math.random() - .5) * 3, N + 2); g.stroke(); }
+      g.globalAlpha = 1; rep = [18, 1]; break;
+  }
+  // granulație fină de țesătură
+  const img = g.getImageData(0, 0, N * K, N * K), d = img.data;
+  for (let i = 0; i < d.length; i += 4) { const n = (Math.random() - .5) * 10; d[i] += n; d[i + 1] += n; d[i + 2] += n; }
+  g.putImageData(img, 0, 0);
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(rep[0], rep[1]);
+  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = MAX_ANISO;
+  tex.userData.rep = rep;
+  texCache.set(key, tex);
+  return tex;
+}
+// relieful materialului: hartă de înălțimi -> normal map (lumina „prinde” firele, ochiurile tricotului, porii pielii)
+const WEAVE = {   // tip: [pas fire px, intensitate, repetare față de baza 24]
+  panza: [16, .35, 1], twill: [16, .55, 1.2], tricot: [16, .9, .7], jersey: [16, .4, 2], rib: [16, .8, 0], piele: [0, .45, .25], par: [0, .7, 0],
+};
+const WEAVE_BY_TYPE = { pulover: 'tricot', helanca: 'jersey', tricou: 'jersey', polo: 'jersey', hanorac: 'jersey', blugi: 'twill', sacou: 'twill', palton: 'twill' };
+const weaveCache = new Map();
+function valueNoise(N, cells, rnd = Math.random) {   // zgomot neted, se repetă fără cusături
+  const g = Array.from({ length: cells * cells }, rnd), out = new Float32Array(N * N);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const u = x / N * cells, v = y / N * cells, i = u | 0, j = v | 0, fu = u - i, fv = v - j;
+    const at = (a, b) => g[(b % cells) * cells + (a % cells)], su = fu * fu * (3 - 2 * fu), sv = fv * fv * (3 - 2 * fv);
+    out[y * N + x] = lerp(lerp(at(i, j), at(i + 1, j), su), lerp(at(i, j + 1), at(i + 1, j + 1), su), sv);
+  }
+  return out;
+}
+function weaveTex(kind, rep) {
+  const key = kind + rep.join('x');
+  if (weaveCache.has(key)) return weaveCache.get(key);
+  const N = 256, [P, str] = WEAVE[kind], h = new Float32Array(N * N);
+  const nA = kind === 'piele' ? valueNoise(N, 32) : kind === 'par' ? null : valueNoise(N, 16);
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const u = x / (P || 1), v = y / (P || 1), i = Math.floor(u), j = Math.floor(v), fu = u - i, fv = v - j;
+    const wp = Math.sin(Math.PI * fu), wf = Math.sin(Math.PI * fv);
+    let z;
+    switch (kind) {
+      case 'panza': z = (i + j) % 2 ? wf * (.6 + .4 * wp) : wp * (.6 + .4 * wf); break;               // pânză: fir peste / fir sub
+      case 'twill': z = ((i - j) % 3 + 3) % 3 ? wp * (.7 + .3 * wf) : wf * (.7 + .3 * wp); break;   // diagonală (denim, stofă)
+      case 'rib': z = Math.pow(wp, .6); break;                                                  // reiat: dungi în relief
+      case 'tricot': case 'jersey': {                                                           // ochiuri în „V”
+        const leg = q => Math.max(0, 1 - ((q - .28 + (fv - .5) * .32) / .23) ** 2 - ((fv - .5) / .56) ** 2);
+        z = Math.sqrt(Math.max(leg(fu), leg(1 - fu))); break;
+      }
+      case 'piele': z = nA[y * N + x] * .7 + Math.random() * .08; break;
+      case 'par': z = 0; break;
+    }
+    if (nA && kind !== 'piele') z += (nA[y * N + x] - .5) * .25;    // neregularități ale firului
+    h[y * N + x] = z;
+  }
+  if (kind === 'par') { const nx = valueNoise(N, 64); for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) h[y * N + x] = nx[x] + Math.random() * .05; }
+  const c = document.createElement('canvas'); c.width = c.height = N;
+  const g = c.getContext('2d'), img = g.createImageData(N, N), d = img.data, s = kind === 'piele' ? 6 : 2.2;
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const H = (a, b) => h[((b + N) % N) * N + (a + N) % N];
+    let nx = (H(x - 1, y) - H(x + 1, y)) * s, ny = (H(x, y + 1) - H(x, y - 1)) * s, nz = 1;
+    const l = Math.hypot(nx, ny, nz), o = (y * N + x) * 4;
+    d[o] = (nx / l * .5 + .5) * 255; d[o + 1] = (ny / l * .5 + .5) * 255; d[o + 2] = (nz / l * .5 + .5) * 255; d[o + 3] = 255;
+  }
+  g.putImageData(img, 0, 0);
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(rep[0], rep[1]); tex.anisotropy = MAX_ANISO;
+  weaveCache.set(key, tex);
+  return tex;
+}
+function weaveFor(kind, mapRep) {
+  const [, str, f] = WEAVE[kind];
+  const rep = f ? [24 * f, 24 * f] : mapRep;                        // reiatul și părul urmează desenul culorii
+  return { normalMap: weaveTex(kind, rep), normalScale: new THREE.Vector2(str, str) };
+}
+function clothMat(color, pattern = 'uni', type) {
+  const map = fabricTex(pattern, color);
+  if (pattern === 'catifea')
+    return new THREE.MeshPhysicalMaterial({ map, roughness: .6, sheen: 1, sheenRoughness: .35, sheenColor: new THREE.Color(color).lerp(new THREE.Color('#fff'), .45), side: THREE.DoubleSide });
+  const kind = pattern === 'denim' ? 'twill' : pattern === 'reiat' ? 'rib' : pattern === 'dantela' ? null : WEAVE_BY_TYPE[type] || 'panza';
+  const sheen = kind === 'tricot' || kind === 'jersey';            // lâna și bumbacul tricotat au un luciu catifelat discret
+  const M = sheen ? THREE.MeshPhysicalMaterial : THREE.MeshStandardMaterial;
+  return new M({ map, roughness: pattern === 'denim' ? .95 : .85, side: THREE.DoubleSide, ...(kind ? weaveFor(kind, map.userData.rep) : {}),
+    ...(sheen ? { sheen: .5, sheenRoughness: .6, sheenColor: new THREE.Color(color).lerp(new THREE.Color('#fff'), .3) } : {}) });
+}
+const leatherMat = c => new THREE.MeshStandardMaterial({ color: c, roughness: .42, metalness: .05, ...weaveFor('piele') });
+// imprimeul din poza produsului, repetat pe haină la mărimea reală (UV-urile hainelor sunt în metri)
+const photoTexCache = new Map();
+function photoTex(p) {
+  const e = desenImg.get(p.desen.img); if (!e?.ok) return null;
+  const r = 100 / clamp(+p.desen.cm || 10, 1, 200), key = p.id + '|' + p.desen.img.length + '|' + p.desen.img.slice(-40) + '|' + r;
+  if (!photoTexCache.has(key)) {
+    const tex = new THREE.Texture(e.im); tex.needsUpdate = true;
+    tex.wrapS = tex.wrapT = THREE.MirroredRepeatWrapping; tex.repeat.set(r, r);
+    tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = MAX_ANISO; tex.userData.rep = [r, r];
+    photoTexCache.set(key, tex);
+  }
+  return photoTexCache.get(key);
+}
+function itemMat(it) {
+  const p = productById(it.produs);
+  if (p?.model === 'foto' && p.desen?.img) {
+    const map = photoTex(p);
+    if (map) return new THREE.MeshStandardMaterial({ map, roughness: .85, side: THREE.DoubleSide, ...weaveFor(WEAVE_BY_TYPE[it.type] || 'panza', map.userData.rep) });
+  }
+  return clothMat(it.color, it.pattern, it.type);
+}
+const metalMat = c => new THREE.MeshStandardMaterial({ color: c, roughness: .28, metalness: 1 });
+// ------------------------------------------------------------------ fețe: aliniere după ochi + textură cu margine moale
+// Aceeași regulă ca src/fete.py: ochii orizontali, distanța dintre ei = FW/2.6, mijlocul lor la (50%, 40%).
+const FW = 1024, FH = 1280, EYE_Y = .40, IOD = FW / 2.6;
+function alignFace(img, p1, p2) {
+  const [L, R] = p1[0] <= p2[0] ? [p1, p2] : [p2, p1];
+  const ang = Math.atan2(R[1] - L[1], R[0] - L[0]), s = Math.hypot(R[0] - L[0], R[1] - L[1]) / IOD;
+  const c = document.createElement('canvas'); c.width = FW; c.height = FH;
+  const g = c.getContext('2d');
+  g.fillStyle = '#7a6a64'; g.fillRect(0, 0, FW, FH);
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+  g.translate(FW / 2, FH * EYE_Y); g.rotate(-ang); g.scale(1 / s, 1 / s); g.translate(-(L[0] + R[0]) / 2, -(L[1] + R[1]) / 2);
+  g.drawImage(img, 0, 0);
+  return c;
+}
+function hairOf(c) {                  // zona de deasupra frunții, în fața aliniată
+  const d = c.getContext('2d').getImageData(FW * .4 | 0, FH * .03 | 0, FW * .2 | 0, FH * .05 | 0).data, px = [[], [], []];
+  for (let i = 0; i < d.length; i += 4) { px[0].push(d[i]); px[1].push(d[i + 1]); px[2].push(d[i + 2]); }
+  const med = a => a.sort((x, y) => x - y)[a.length >> 1];
+  return '#' + px.map(a => Math.round(med(a) * .9).toString(16).padStart(2, '0')).join('');
+}
+function skinOf(c) {
+  const g = c.getContext('2d'), px = [[], [], []];
+  for (const [x0, x1] of [[.28, .40], [.60, .72]]) {
+    const d = g.getImageData(FW * x0 | 0, FH * .52 | 0, FW * (x1 - x0) | 0, FH * .10 | 0).data;
+    for (let i = 0; i < d.length; i += 4) { px[0].push(d[i]); px[1].push(d[i + 1]); px[2].push(d[i + 2]); }
+  }
+  const med = a => a.sort((x, y) => x - y)[a.length >> 1];
+  return '#' + px.map(a => med(a).toString(16).padStart(2, '0')).join('');
+}
+// imaginea aliniată -> canvas cu luminozitate + mască eliptică estompată (transparentă spre margini)
+function maskedFace(src, bright = 1, out, mw = .42) {
+  const c = out || document.createElement('canvas'); c.width = FW; c.height = FH;
+  const g = c.getContext('2d');
+  g.clearRect(0, 0, FW, FH);
+  g.drawImage(src, 0, 0, FW, FH);
+  if (bright !== 1) {                       // luminozitate pe pixeli (ctx.filter nu există pe iPhone/Safari mai vechi)
+    const im = g.getImageData(0, 0, FW, FH), d = im.data;
+    for (let i = 0; i < d.length; i += 4) { d[i] *= bright; d[i + 1] *= bright; d[i + 2] *= bright; }
+    g.putImageData(im, 0, 0);
+  }
+  g.globalCompositeOperation = 'destination-in';
+  g.save(); g.translate(FW * .5, FH * .5); g.scale(FW * mw, FH * .49);
+  const gr = g.createRadialGradient(0, 0, 0, 0, 0, 1);
+  gr.addColorStop(0, '#000'); gr.addColorStop(.78, '#000'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.beginPath(); g.arc(0, 0, 1, 0, TAU); g.fill(); g.restore();
+  g.globalCompositeOperation = 'source-over';
+  return c;
+}
+const faceImgCache = new Map(), faceTexCache = new Map();
+function faceImage(url) {
+  if (!faceImgCache.has(url)) {
+    const im = new Image(); const p = new Promise(r => { im.onload = () => r(im); im.onerror = () => r(null); });
+    im.src = url; faceImgCache.set(url, p);
+  }
+  return faceImgCache.get(url);
+}
+function faceTex(a) {
+  if (!a.face) return null;
+  const key = a.id + '|' + a.face.length + '|' + a.face.slice(-48) + '|' + a.faceAdj.bright + '|' + a.faceAdj.mask;
+  if (!faceTexCache.has(key)) {
+    const c = document.createElement('canvas'); c.width = FW; c.height = FH;
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = MAX_ANISO;
+    tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+    faceImage(a.face).then(im => { if (im) { maskedFace(im, a.faceAdj.bright, c, a.faceAdj.mask); tex.needsUpdate = true; invalidate(); } });
+    faceTexCache.set(key, tex);
+  }
+  return faceTexCache.get(key);
+}
+
+// ------------------------------------------------------------------ cap anatomic (sferă deformată: maxilar, nas, orbite, buze, bărbie)
+const smooth = (e0, e1, x) => { const t = clamp((x - e0) / (e1 - e0), 0, 1); return t * t * (3 - 2 * t); };
+const NOSE = [[-.5, 0], [-.43, .08], [-.34, .17], [-.22, .11], [-.05, .055], [.07, 0]];
+function headPoint(x, y, z) {               // punct pe sfera unitate -> punct pe capul normalizat
+  const jaw = smooth(-.05, -.95, y), front = z;
+  x *= 1 - .2 * smooth(-.25, -1, y);
+  if (z < 0) z *= 1.08 - .3 * jaw;          // occiput mai plin, ceafa mai îngustă
+  else {
+    z *= .9 + .22 * jaw;                    // fața mai plată, bărbia în față
+    const ax = Math.abs(x), w = smooth(.3, .85, front);
+    const f = interp(NOSE, y) * Math.exp(-((x / .13) ** 2))                      // nas
+      - .05 * Math.exp(-(((ax - .4) / .16) ** 2) - ((y - .01) / .1) ** 2)         // orbite
+      + .03 * Math.exp(-(((ax - .36) / .22) ** 2) - ((y - .15) / .06) ** 2)       // arcade
+      + .035 * Math.exp(-((x / .22) ** 2) - ((y + .62) / .07) ** 2)               // buze
+      + .03 * Math.exp(-((x / .24) ** 2) - ((y + .9) / .09) ** 2)                 // bărbie
+      + .025 * Math.exp(-(((ax - .45) / .18) ** 2) - ((y + .25) / .15) ** 2);     // pomeți
+    z += f * w;
+  }
+  return [x, y, z];
+}
+let _hairFade = null;
+function hairFade() {                       // alphaMap: opac sus, transparent spre marginea de jos a calotei
+  if (_hairFade) return _hairFade;
+  const c = document.createElement('canvas'); c.width = 4; c.height = 128;
+  const g = c.getContext('2d'), gr = g.createLinearGradient(0, 0, 0, 128);
+  gr.addColorStop(0, '#fff'); gr.addColorStop(.72, '#fff'); gr.addColorStop(1, '#000');
+  g.fillStyle = gr; g.fillRect(0, 0, 4, 128);
+  return _hairFade = new THREE.CanvasTexture(c);
+}
+function headDims(D) { return { W: D.hh * (D.kid ? .7 : .66), H: D.hh, D: D.hh * .84 }; }
+function headGeo(HD, seg, ps, pl, ts, tl, inflate = 1) {
+  const g = new THREE.SphereGeometry(1, seg, Math.round(seg * .75), ps, pl, ts, tl);
+  const p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const [x, y, z] = headPoint(p.getX(i), p.getY(i), p.getZ(i));
+    p.setXYZ(i, x * HD.W / 2 * inflate * S, y * HD.H / 2 * inflate * S, z * HD.D / 2 * inflate * S);
+  }
+  g.computeVertexNormals();
+  return g;
+}
+const headSurfZ = (HD, nx, ny) => {          // adâncimea feței în punctul (nx, ny) normalizat
+  const z0 = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
+  return headPoint(nx, ny, z0)[2] * HD.D / 2;
+};
+
+// ------------------------------------------------------------------ construirea unui avatar îmbrăcat
+// corpul realist (MakeHuman) când pachetul 3D e disponibil și ales; altfel corpul simplu, generat din forme
+function buildAvatar(a, opts = {}) {
+  if (!opts.accOnly && MH.ok && CORP.mode === 'realist') return buildAvatarMH(a);
+  return buildAvatarSimple(a, opts);
+}
+function buildAvatarSimple(a, opts = {}) {
+  const D = dims(a);
+  const { R, FZ, SX, SZ } = D;
+  const root = new THREE.Group();
+  const add = (mesh, parent = root) => { mesh.castShadow = true; mesh.receiveShadow = true; parent.add(mesh); return mesh; };
+  const at = (mesh, x, y, z) => { mesh.position.set(x * S, y * S, z * S); return mesh; };
+  const skin = new THREE.MeshStandardMaterial({ color: new THREE.Color(a.skin).multiplyScalar(a.faceAdj.bright), roughness: .55 });
+  const o = a.outfit;
+  const fits = {}; SLOTS.forEach(s => fits[s] = fitOf(s, o[s], a));
+
+  // straturi pentru suprapunerea corectă a hainelor
+  const torsoLayers = [], armLayers = [], legLayers = [];
+  const surfOf = (layers, base, x) => layers.reduce((m, L) => (x >= L.a && x <= L.b) ? Math.max(m, interp(L.tab, x)) : m, base);
+  const surf = y => surfOf(torsoLayers, R(y), y);
+  const armSurf = t => surfOf(armLayers, interp(ARM, t) * D.ua, t);
+  const legSurf = t => surfOf(legLayers, interp(LEG, t) * D.thighR, t);
+  const frontZ = y => surf(y) * SZ * FZ(y);
+  const frontZAt = (x, y) => { const r = surf(y); return r * SZ * FZ(y) * Math.sqrt(Math.max(0, 1 - (x / (r * SX)) ** 2)); };
+  const legT = y => clamp((D.legTop - y) / D.legL, 0, 1);
+
+  // --- corp
+  const torsoRows = [];
+  for (let y = D.yCr - 4; y <= D.ySh + 3.5; y += 1.2) torsoRows.push({ y, r: R(y), fz: FZ(y) });
+  add(new THREE.Mesh(shellGeo(torsoRows, { sx: SX, sz: SZ }), skin));
+  const neckTop = D.yHeadC - D.hh * .2;
+  const neck = add(new THREE.Mesh(new THREE.CylinderGeometry(D.neckR * .95 * S, D.neckR * S, (neckTop - D.ySh) * S, 24), skin));
+  at(neck, 0, (D.ySh + neckTop) / 2, -D.hh * .07);
+
+  const arms = [], legs = [];
+  for (const side of [1, -1]) {
+    const g = new THREE.Group(); at(g, side * D.jointX, D.jointY, 0); g.rotation.z = side * D.armA; root.add(g);
+    const rows = []; for (let t = 0; t <= 1.0001; t += .05) rows.push({ y: -t * D.armLen, r: interp(ARM, t) * D.ua });
+    add(new THREE.Mesh(shellGeo(rows, { seg: 28 }), skin), g);
+    add(new THREE.Mesh(new THREE.SphereGeometry(D.ua * S, 24, 16), skin), g);
+    const hand = add(new THREE.Mesh(new THREE.SphereGeometry(S, 20, 14), skin), g);
+    hand.scale.set(D.ua * .34, D.handLen / 2, D.ua * .62); at(hand, 0, -D.armLen - D.handLen * .42, .5);
+    arms.push({ g, side });
+
+    const lg = new THREE.Group(); at(lg, side * D.legX, D.legTop, 0); root.add(lg);
+    const lrows = []; for (let t = 0; t <= 1.0001; t += .04) lrows.push({ y: -t * D.legL, r: interp(LEG, t) * D.thighR });
+    add(new THREE.Mesh(shellGeo(lrows, { seg: 32 }), skin), lg);
+    add(new THREE.Mesh(new THREE.SphereGeometry(D.thighR * .97 * S, 24, 16), skin), lg);
+    legs.push({ g: lg, side });
+  }
+
+  // --- cap + fața din fotografie + păr
+  buildHead(a, D, root, skin, add, at);
+
+  const torsoGarment = (y0, y1, rFn, mat, opts = {}) => {
+    const rows = [], tab = [];
+    const n = Math.max(2, Math.ceil((y1 - y0) / 1.1));
+    for (let i = 0; i <= n; i++) {
+      const y = lerp(y0, y1, i / n);
+      let r = Math.max(rFn(y), surf(y) + (opts.over ?? .3));
+      if (y < D.legTop) { const ls = legSurf(legT(y)); r = Math.max(r, (D.legX + ls + .6) / SX, (ls + .6) / SZ); }
+      rows.push({ y, r, fz: FZ(y), gap: opts.gap ? opts.gap(y) : 0 }); tab.push([y, r]);
+    }
+    const m = add(new THREE.Mesh(shellGeo(rows, { sx: SX, sz: SZ }), mat));
+    torsoLayers.push({ a: y0, b: y1, tab });
+    return m;
+  };
+  const sleeves = (len, k, th, mat) => {
+    if (len <= 0) return;
+    const ka = 1 + (k - 1) * 1.3, tab = [];
+    for (const { g } of arms) {
+      const rows = [];
+      for (let t = 0; t <= len + 1e-4; t += .04) {
+        const r = Math.max(interp(ARM, t) * D.ua * ka + th, armSurf(t) + .3);
+        rows.push({ y: -t * D.armLen, r }); if (g === arms[0].g) tab.push([t, r]);
+      }
+      add(new THREE.Mesh(shellGeo(rows, { seg: 28 }), mat), g);
+      add(new THREE.Mesh(new THREE.SphereGeometry((D.ua * ka + th + .2) * S, 24, 16, 0, TAU, 0, Math.PI * .55), mat), g);
+    }
+    armLayers.push({ a: 0, b: len, tab });
+  };
+  const hemY = h => typeof h === 'number' ? D.yCr + h
+    : h === 'genunchi' ? D.kneeY - 4 : h === 'gamba' ? D.legTop - .72 * D.legL : h === 'glezna' ? D.ankleY + 5 : D.yCr - 3;
+  const draped = (k, th, flare) => { const base = R(D.yHip) * k + th; return y => y >= D.yHip ? R(y) * k + th : base + (D.yHip - y) * flare; };
+
+  // --- jos: pantaloni / fustă
+  if (o.bottom) {
+    const t = TYPES.bottom[o.bottom.type], f = fits.bottom, mat = itemMat(o.bottom);
+    if (t.skirt) {
+      const hy = hemY(t.hem) - (f.lf - 1) * 30;
+      torsoGarment(hy, D.yWaist + 1.5, draped(f.k, t.th, t.flare), mat);
+    } else {
+      const len = Math.min(t.len * f.lf, 1.04);
+      for (const { g } of legs) {
+        const rows = [], tab = [];
+        for (let tt = 0; tt <= len + 1e-4; tt += .03) {
+          const r = Math.max(interp(LEG, tt) * D.thighR * f.k, D.thighR * t.cut * f.k) + t.th;
+          rows.push({ y: -tt * D.legL, r }); tab.push([tt, r]);
+        }
+        add(new THREE.Mesh(shellGeo(rows, { seg: 32 }), mat), g);
+        if (g === legs[0].g) legLayers.push({ a: 0, b: len, tab });
+      }
+      torsoGarment(D.yCr - 4, D.yWaist + 1.5, y => R(y) * f.k + t.th, mat, { over: .15 });
+    }
+  }
+
+  // --- sus: bluză / cămașă / pulover
+  if (o.top) {
+    const t = TYPES.top[o.top.type], f = fits.top, mat = itemMat(o.top);
+    const hy = D.yCr - 3 - (f.lf - 1) * 40;
+    torsoGarment(hy, D.ySh + 2, draped(f.k, t.th, .02), mat);
+    sleeves(Math.min(t.sleeve * f.lf, 1.03), f.k, t.th, mat);
+    collar(t.collar, mat, t.th);
+    if (t.buttons) buttons(D.yCr + 2, D.ySh - 3, 7, '#e8e6e0', .55);
+    if (o.top.type === 'polo') buttons(D.ySh - 6, D.ySh - 1, 2.5, '#dddddd', .45);
+  }
+
+  // --- rochie / sarafan
+  if (o.dress) {
+    const t = TYPES.dress[o.dress.type], f = fits.dress, mat = itemMat(o.dress);
+    const hy = hemY(t.hem) - (f.lf - 1) * 40;
+    if (t.sarafan) {
+      const top = D.yChest + (D.ySh - D.yChest) * .35;
+      torsoGarment(hy, top, draped(f.k, t.th, t.flare), mat);
+      const sx = D.R(D.yChest) * SX * .42;
+      for (const s of [1, -1]) {
+        const pts = [new THREE.Vector3(s * sx, top - 1, frontZAt(sx, top - 1) + .1), new THREE.Vector3(s * sx * 1.05, D.ySh + 1.5, 0),
+          new THREE.Vector3(s * sx, top - 1, -surf(top - 1) * SZ + .2)].map(v => v.multiplyScalar(S));
+        add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, 1.1 * S, 8), mat));
+      }
+      // talie: panglică din catifea
+      const bandY = D.yWaist;
+      const band = torsoGarment(bandY - 1.8, bandY + 1.8, y => surf(y) + .35, clothMat(new THREE.Color(o.dress.color).lerp(new THREE.Color('#3355cc'), .25).getStyle(), 'catifea'));
+    } else {
+      torsoGarment(hy, D.ySh + 2, draped(f.k, t.th, t.flare), mat);
+      sleeves(Math.min(t.sleeve * f.lf, 1.03), f.k, t.th, mat);
+    }
+  }
+
+  // --- curea (sub stratul exterior)
+  for (const sl of ['acc1', 'acc2']) if (o[sl]?.type === 'curea') {
+    const by = D.yWaist - 1;
+    torsoGarment(by - 1.7, by + 1.7, y => surf(y) + .35, leatherMat(o[sl].color), { over: .35 });
+    const bk = add(new THREE.Mesh(new RoundedBoxGeometry(5 * S, 4 * S, .8 * S, 2, .3 * S), metalMat('#c7c7c7')));
+    at(bk, 0, by, frontZ(by) + .3);
+  }
+
+  // --- strat exterior
+  if (o.outer) {
+    const t = TYPES.outer[o.outer.type], f = fits.outer, mat = itemMat(o.outer);
+    const hy = hemY(t.hem) - (f.lf - 1) * 40;
+    const top = D.ySh + 2.4;
+    const vy0 = D.yChest - 6;
+    const gapFn = y => (t.gap || 0) + (t.vneck && y > vy0 ? lerp(0, 1.5, (y - vy0) / (top - vy0)) : 0);
+    torsoGarment(hy, top, draped(f.k, t.th, t.flare ?? .02), mat, { gap: gapFn });
+    sleeves(Math.min(t.sleeve * f.lf, 1.03), f.k, t.th, mat);
+    if (t.collar === 'geaca') {
+      const rows = []; for (let i = 0; i <= 4; i++) { const y = D.ySh + 1.5 + i * 1.0; rows.push({ y, r: D.neckR + 2.3 + i * .3, gap: .9 }); }
+      add(new THREE.Mesh(shellGeo(rows, { sx: 1.05, sz: 1 }), mat));
+    }
+    if (t.buttons && !t.gap) buttons(hy + 4, t.vneck ? vy0 : D.ySh - 3, 6.5, '#2a2a2a', .7);
+    if (t.buttons && t.gap) buttons(hy + 6, vy0, 9, '#1a1a1a', .8, 3.2);
+    if (t.pockets) {
+      for (const s of [1, -1]) {
+        const y = D.yChest - 2, x = s * R(y) * SX * .5;
+        const p = add(new THREE.Mesh(new RoundedBoxGeometry(D.H * .07 * S, D.H * .045 * S, .8 * S, 2, .25 * S), mat));
+        at(p, x, y, frontZAt(x, y) + .1); p.rotation.y = s * .32;
+        const ly = D.yWaist - 4, lx = s * R(ly) * SX * .55;
+        const p2 = add(new THREE.Mesh(new RoundedBoxGeometry(D.H * .075 * S, D.H * .02 * S, .8 * S, 2, .25 * S), mat));
+        at(p2, lx, ly, frontZAt(lx, ly) + .1); p2.rotation.y = s * .4;
+      }
+    }
+    if (t.kangaroo) {
+      const y = D.yWaist - 3, p = add(new THREE.Mesh(new RoundedBoxGeometry(R(y) * 1.3 * S, D.H * .08 * S, 1 * S, 3, .4 * S), mat));
+      at(p, 0, y, frontZ(y) - .1);
+    }
+    if (t.hood) {
+      const hood = add(new THREE.Mesh(new THREE.SphereGeometry(D.neckR * 2.5 * S, 32, 16, 0, TAU, 0, Math.PI / 2), mat));
+      hood.scale.set(1.1, .55, .75); hood.rotation.x = -Math.PI / 2 - .5; at(hood, 0, D.ySh + 3, -surf(D.ySh) * SZ * .55);
+      for (const s of [1, -1]) {
+        const c = add(new THREE.Mesh(new THREE.CylinderGeometry(.25 * S, .25 * S, D.H * .1 * S, 6), leatherMat('#e8e8e8')));
+        at(c, s * D.neckR * 1.2, D.ySh - D.H * .04, frontZ(D.ySh - D.H * .04) + .3);
+      }
+    }
+  }
+
+  // --- încălțăminte
+  buildShoes(a, D, o.shoes, fits.shoes, legs, root, add, at, skin, legSurf);
+
+  // --- accesorii + geantă (pentru corpul realist se construiesc separat, apoi se mută pe el)
+  const accG = new THREE.Group(), accRoot = opts.accOnly ? accG : root;
+  const addA = (mesh, parent = accRoot) => add(mesh, parent);
+  for (const sl of ['acc1', 'acc2']) if (o[sl] && o[sl].type !== 'curea') {
+    const n0 = accRoot.children.length;
+    buildAccessory(o[sl], D, accRoot, addA, at, { surf, frontZ, frontZAt }, a.faceAdj);
+    if (['ochelari', 'palarie', 'sapca'].includes(o[sl].type)) accRoot.children.slice(n0).forEach(c => c.userData.head = true);
+  }
+  if (o.bag) buildBag(o.bag, fits.bag, D, accRoot, addA, at, arms, { surf, frontZ, frontZAt });
+  if (opts.accOnly) return accG;
+
+  // ridicare pentru tocuri
+  if (o.shoes?.type === 'toc') root.userData.lift = 6.5 * Math.min(1, D.H / 165);
+  return root;
+
+  function collar(kind, mat, th) {
+    if (!kind) return;
+    if (kind === 'inalt') {
+      const rows = []; for (let i = 0; i <= 5; i++) rows.push({ y: D.ySh + 1 + i * D.neckLen * .16, r: D.neckR + 1 });
+      add(new THREE.Mesh(shellGeo(rows, { seg: 40, sz: 1.02 }), mat)); return;
+    }
+    if (kind === 'rotund') {           // guler rotund (Peter Pan), ca la fetiță
+      const rows = []; const w = D.neckR * .9;
+      for (let i = 0; i <= 6; i++) { const u = i / 6; const y = lerp(D.ySh + 2.4, D.ySh - .6, u); rows.push({ y, r: Math.max(D.neckR + .6 + u * w, surf(y) + .35), gap: .22 }); }
+      add(new THREE.Mesh(shellGeo(rows, { sx: SX * .95, sz: SZ * 1.05 }), mat)); return;
+    }
+    // cămașă / polo: guler drept + clape
+    const rows = []; for (let i = 0; i <= 4; i++) rows.push({ y: D.ySh + 1.5 + i * .9, r: D.neckR + .9, gap: .55 });
+    add(new THREE.Mesh(shellGeo(rows, { seg: 40, sz: 1.05 }), mat));
+    for (const s of [1, -1]) {
+      const fl = add(new THREE.Mesh(new THREE.BoxGeometry(D.neckR * .75 * S, D.neckR * .6 * S, .35 * S), mat));
+      at(fl, s * D.neckR * .55, D.ySh + 1.4, D.neckR * .95 + 1.2); fl.rotation.set(-.5, s * .35, s * .55);
+    }
+  }
+  function buttons(y0, y1, step, color, r, xoff = 0) {
+    const m = metalMat(color); m.metalness = .2;
+    for (let y = y0; y <= y1; y += step) {
+      const b = add(new THREE.Mesh(new THREE.SphereGeometry(r * S, 10, 8), m));
+      b.scale.z = .5; at(b, -xoff, y, xoff ? frontZAt(-xoff, y) + .2 : frontZ(y) + .15);
+    }
+  }
+}
+
+function buildHead(a, D, root, skin, add, at) {
+  const HD = headDims(D), adj = a.faceAdj;
+  const head = new THREE.Group(); at(head, 0, D.yHeadC, 0); root.add(head);
+  add(new THREE.Mesh(headGeo(HD, 72, 0, TAU, 0, Math.PI), skin), head);
+  // fața din fotografie: proiecție frontală (ca un aparat foto) pe partea din față a capului
+  const tex = faceTex(a);
+  if (tex) {
+    const g = headGeo(HD, 96, Math.PI / 2 - 1.5, 3.0, Math.PI * .03, Math.PI * .95, 1.003);
+    const p = g.attributes.position, uv = g.attributes.uv;
+    const cw = 1.09 * HD.W * adj.scale, ch = cw * FH / FW;
+    for (let i = 0; i < p.count; i++) uv.setXY(i, .5 + p.getX(i) / S / cw, (1 - EYE_Y) + (p.getY(i) / S - adj.dy) / ch);
+    const fm = new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: .55, depthWrite: false,
+      polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+    const face = new THREE.Mesh(g, fm); face.renderOrder = 2; head.add(face);
+  }
+  for (const s of [1, -1]) {                // urechi
+    const ear = add(new THREE.Mesh(new THREE.SphereGeometry(S, 16, 12), skin), head);
+    ear.scale.set(HD.W * .05, HD.H * .12, HD.D * .1); at(ear, s * HD.W * .49, -HD.H * .04, -HD.D * .06); ear.rotation.y = s * .4;
+  }
+  // păr
+  const st = a.hair.style;
+  if (st === 'chel') return;
+  const hcol = a.hair.color;
+  const hmap = fabricTex('par', hcol);
+  const hm = new THREE.MeshStandardMaterial({ map: hmap, color: '#8c8c8c', roughness: .9, envMapIntensity: .2, side: THREE.DoubleSide, ...weaveFor('par', hmap.userData.rep) });
+  const hmEdge = hm.clone(); hmEdge.alphaMap = hairFade(); hmEdge.transparent = true;   // marginea părului se estompează peste fotografie
+  const capT = { scurt: .35, tepi: .33, bob: .35, pixie: .36, lung: .35 }[st] ?? .35;
+  const backT = { scurt: .6, tepi: .56, bob: .8, pixie: .66, lung: .86 }[st] ?? .6;
+  const backR = { scurt: 1.045, tepi: 1.04, bob: 1.09, pixie: 1.05, lung: 1.08 }[st] ?? 1.05;
+  add(new THREE.Mesh(headGeo(HD, 56, 0, TAU, 0, Math.PI * capT, st === 'scurt' ? 1.055 : 1.05), hmEdge), head).renderOrder = 3;
+  add(new THREE.Mesh(headGeo(HD, 56, Math.PI / 2 + 1.4, TAU - 2.8, 0, Math.PI * backT, backR), hmEdge), head).renderOrder = 3;
+  if (st === 'bob' || st === 'pixie' || st === 'lung') {
+    for (const ps of [Math.PI / 2 - 1.5, Math.PI / 2 + 1.08]) {
+      const tl = st === 'pixie' ? .3 : .58;
+      add(new THREE.Mesh(headGeo(HD, 20, ps, .42, Math.PI * .18, Math.PI * tl, st === 'pixie' ? 1.05 : 1.085), hm), head);
+    }
+  }
+  if (st === 'lung') {                      // păr până la umeri
+    const rows = [], y1 = D.ySh + 1 - D.yHeadC;
+    for (let i = 0; i <= 10; i++) { const y = lerp(-HD.H * .05, y1, i / 10); rows.push({ y, r: HD.W / 2 * (1.1 + .12 * i / 10) }); }
+    add(new THREE.Mesh(shellGeo(rows.map(r => ({ ...r, gap: 2.3 })), { seg: 40, sx: 1, sz: HD.D / HD.W * .95 }), hm), head);
+  }
+  if (st === 'tepi') {
+    const hi = new THREE.MeshStandardMaterial({ color: a.hair.hi || hcol, roughness: .7 });
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 30; i++) {
+      const th = rnd() * Math.PI * .4, ph = rnd() * TAU;
+      if (Math.sin(ph) > .55 && th > Math.PI * .2) continue;
+      const u = [-Math.cos(ph) * Math.sin(th), Math.cos(th), Math.sin(ph) * Math.sin(th)];
+      const [x, y, z] = headPoint(...u);
+      const pos = new THREE.Vector3(x * HD.W / 2, y * HD.H / 2, z * HD.D / 2).multiplyScalar(1.03 * S);
+      const c = add(new THREE.Mesh(new THREE.ConeGeometry(HD.W * .065 * S, HD.H * .17 * S, 6), i % 3 ? hm : hi), head);
+      c.position.copy(pos);
+      c.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(u[0], u[1] + .5, u[2] + .2).normalize());
+    }
+  }
+}
+
+function buildShoes(a, D, item, fit, legs, root, add, at, skin, legSurf) {
+  const footEU = a.body.shoe;
+  const type = item?.type;
+  const eu = fit?.eu ?? footEU;
+  const L = eu * 2 / 3, footL = footEU * 2 / 3 - 1.5;
+  const lift = type === 'toc' ? 6.5 * Math.min(1, D.H / 165) : 0;
+  for (const { side } of legs) {
+    const foot = new THREE.Group(); root.add(foot); at(foot, side * D.legX * 1.02, -lift, 0);   // relativ la sol
+    const showFoot = !item || type === 'sandale';
+    const W = L * .37;
+    if (showFoot) {
+      const f = add(new THREE.Mesh(new THREE.SphereGeometry(S, 20, 12), skin), foot);
+      f.scale.set(footL * .19, D.ankleY * .55, footL / 2); at(f, 0, D.ankleY * .45 + (type === 'sandale' ? 1.2 : 0), footL * .26);
+    }
+    if (!item) continue;
+    const mat = leatherMat(item.color);
+    const pitchG = new THREE.Group(); foot.add(pitchG);
+    if (lift) {                         // toc: piciorul înclinat, vârful pe sol
+      const zt = L * .72;
+      pitchG.position.set(0, lift * S, -L * .2 * S);
+      pitchG.rotation.x = Math.asin(clamp(lift / zt, 0, .9));
+      const heel = add(new THREE.Mesh(new THREE.CylinderGeometry(.7 * S, 1.1 * S, lift * S, 12), mat), foot);
+      at(heel, 0, lift / 2, -L * .17);
+    }
+    const P = lift ? { z0: L * .2 } : { z0: 0 };
+    const sole = type === 'adidasi' ? 3 : type === 'cizme' ? 2.2 : type === 'balerini' ? .8 : 1.4;
+    const soleCol = type === 'adidasi' ? '#f2f2f2' : '#1b1b1b';
+    const so = add(new THREE.Mesh(new THREE.CylinderGeometry(S, S, sole * S, 32), leatherMat(soleCol)), pitchG);
+    so.scale.set(W / 2 * 1.04, 1, L / 2 * 1.02); at(so, 0, sole / 2, L * .28 - P.z0);
+    if (type === 'sandale') {
+      for (let i = 0; i < 3; i++) {
+        const st = add(new THREE.Mesh(new THREE.TorusGeometry(W * .5 * S, .45 * S, 6, 20, Math.PI), mat), pitchG);
+        st.scale.set(1, .55, 1); at(st, 0, sole, L * (.05 + i * .25) - P.z0);
+      }
+      continue;
+    }
+    const hU = { pantofi: .27, adidasi: .33, cizme: .3, balerini: .14, toc: .16 }[type] ?? .27;
+    const up = add(new THREE.Mesh(new THREE.SphereGeometry(S, 32, 16, 0, TAU, 0, Math.PI / 2), mat), pitchG);
+    up.scale.set(W / 2, L * hU, L / 2); at(up, 0, sole, L * .28 - P.z0);
+    if (type === 'adidasi') {
+      const acc = leatherMat(new THREE.Color(item.color).lerp(new THREE.Color('#1d3d7a'), .7).getStyle());
+      for (const s of [1, -1]) {
+        const sw = add(new THREE.Mesh(new THREE.BoxGeometry(.3 * S, 2.2 * S, L * .35 * S), acc), pitchG);
+        at(sw, s * W * .47, sole + 2.4, L * .28); sw.rotation.x = -.35;
+      }
+      for (let i = 0; i < 4; i++) {
+        const la = add(new THREE.Mesh(new THREE.BoxGeometry(W * .45 * S, .35 * S, .5 * S), leatherMat('#fafafa')), pitchG);
+        at(la, 0, sole + L * hU * (.92 - i * .06), L * (.32 + i * .07));
+      }
+    }
+    if (type === 'cizme') {
+      const rows = [], top = D.ankleY + D.legL * .42;
+      for (let y = D.ankleY * .6; y <= top; y += 1.5) rows.push({ y: y - 0, r: Math.max(legSurf(clamp((D.legTop - y) / D.legL, 0, 1)) + .6, interp(LEG, 1) * D.thighR * 1.25) });
+      add(new THREE.Mesh(shellGeo(rows, { seg: 28 }), mat), foot);
+    }
+  }
+}
+
+function buildAccessory(item, D, root, add, at, F, adj) {
+  const hs = D.H / 175, col = item.color;
+  const hy = D.yHeadC, HD = headDims(D);
+  switch (item.type) {
+    case 'colier': {
+      const yP = D.ySh - (D.ySh - D.yChest) * .55, n = D.neckR;
+      const pts = [[0, D.ySh + 2.2, -n * 1.05], [n * 1.25, D.ySh + 1.8, -.2], [n * 1.15, D.ySh - 3, F.frontZAt(n * 1.15, D.ySh - 3) + .35],
+        [0, yP, F.frontZ(yP) + .45], [-n * 1.15, D.ySh - 3, F.frontZAt(-n * 1.15, D.ySh - 3) + .35], [-n * 1.25, D.ySh + 1.8, -.2]]
+        .map(p => new THREE.Vector3(p[0] * S, p[1] * S, p[2] * S));
+      add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), 80, .14 * S, 6, true), metalMat(col)));
+      const pd = add(new THREE.Mesh(new RoundedBoxGeometry(2.2 * hs * S, 3 * hs * S, .5 * S, 2, .3 * S), metalMat(col)));
+      at(pd, 0, yP - 1.6 * hs, F.frontZ(yP - 1.6) + .55);
+      break;
+    }
+    case 'papion': {
+      const y = D.ySh + 1.4, z = D.neckR + 1.6, m = new THREE.MeshStandardMaterial({ color: col, roughness: .45 });
+      for (const s of [1, -1]) {
+        const c = add(new THREE.Mesh(new THREE.ConeGeometry(2.4 * hs * S, 4.5 * hs * S, 4), m));
+        c.rotation.z = s * Math.PI / 2; c.scale.z = .4; at(c, s * 2.3 * hs, y, z);
+      }
+      at(add(new THREE.Mesh(new THREE.SphereGeometry(1 * hs * S, 12, 8), m)), 0, y, z + .2);
+      break;
+    }
+    case 'cravata': {
+      const m = new THREE.MeshStandardMaterial({ color: col, roughness: .5 });
+      const y0 = D.ySh + 1, y1 = D.yWaist + 2, Ln = y0 - y1;
+      const knot = add(new THREE.Mesh(new THREE.ConeGeometry(1.8 * hs * S, 3 * hs * S, 4), m)); knot.rotation.x = Math.PI; knot.scale.z = .5;
+      at(knot, 0, y0, D.neckR + 1.6);
+      const blade = add(new THREE.Mesh(new THREE.CylinderGeometry(2.2 * hs * S, 4 * hs * S, Ln * S, 4), m));
+      blade.rotation.y = Math.PI / 4; blade.scale.set(1, 1, .12);
+      const ym = (y0 + y1) / 2; at(blade, 0, ym - 1, F.frontZ(ym) + .45); blade.rotation.x = -.08;
+      break;
+    }
+    case 'esarfa': {
+      const m = clothMat(col, 'uni');
+      const t = add(new THREE.Mesh(new THREE.TorusGeometry((D.neckR + 2.6) * S, 2.1 * hs * S, 12, 32), m));
+      t.rotation.x = Math.PI / 2 - .25; t.scale.set(1.15, 1, 1); at(t, 0, D.ySh + 2.5, .8);
+      for (const s of [1, -1]) {
+        const e = add(new THREE.Mesh(new RoundedBoxGeometry(8 * hs * S, 32 * hs * S, 1.2 * S, 2, .5 * S), m));
+        const y = D.ySh - 14 * hs; at(e, s * 4.5 * hs, y, F.frontZAt(s * 4.5 * hs, y) + 1.4); e.rotation.z = s * .06;
+      }
+      break;
+    }
+    case 'ochelari': {
+      const g = new THREE.Group(); at(g, 0, hy + adj.dy, 0); root.add(g);
+      const ex = .4 * HD.W / 2, ez = Math.max(headSurfZ(HD, .4, 0), headSurfZ(HD, 0, -.05)) + .9, lr = HD.W * .13;
+      const m = metalMat(col);
+      for (const s of [1, -1]) {
+        const ring = add(new THREE.Mesh(new THREE.TorusGeometry(lr * S, .2 * S, 8, 32), m), g);
+        ring.scale.y = .78; at(ring, s * ex * 1.05, 0, ez);
+        const tl = ez + HD.D * .1;
+        const tmp = add(new THREE.Mesh(new THREE.CylinderGeometry(.18 * S, .18 * S, tl * S, 6), m), g);
+        tmp.rotation.x = Math.PI / 2; at(tmp, s * HD.W * .5, .3, ez - tl / 2);
+      }
+      const br = add(new THREE.Mesh(new THREE.CylinderGeometry(.18 * S, .18 * S, (2 * ex * 1.05 - 2 * lr) * S, 6), m), g);
+      br.rotation.z = Math.PI / 2; at(br, 0, lr * .3, ez + .2);
+      break;
+    }
+    case 'palarie': {
+      const g = new THREE.Group(); at(g, 0, hy + HD.H * .27, -HD.D * .03); g.rotation.x = -.08; root.add(g);
+      const m = clothMat(col, 'uni');
+      add(new THREE.Mesh(new THREE.CylinderGeometry(HD.W * .95 * S, HD.W * .95 * S, .5 * S, 48), m), g);
+      at(add(new THREE.Mesh(new THREE.CylinderGeometry(HD.W * .48 * S, HD.W * .55 * S, HD.H * .3 * S, 40), m), g), 0, HD.H * .15, 0);
+      at(add(new THREE.Mesh(new THREE.CylinderGeometry(HD.W * .555 * S, HD.W * .56 * S, HD.H * .06 * S, 40), leatherMat('#222')), g), 0, HD.H * .03, 0);
+      break;
+    }
+    case 'sapca': {
+      const g = new THREE.Group(); at(g, 0, hy, 0); root.add(g);
+      const m = clothMat(col, 'uni');
+      add(new THREE.Mesh(headGeo(HD, 40, 0, TAU, 0, Math.PI * .4, 1.08), m), g);
+      const vi = add(new THREE.Mesh(new THREE.CylinderGeometry(HD.W * .42 * S, HD.W * .42 * S, .5 * S, 32, 1, false, -Math.PI / 2, Math.PI), m), g);
+      vi.scale.set(1, 1, .95); at(vi, 0, HD.H * .25, HD.D * .4); vi.rotation.x = .15;
+      break;
+    }
+  }
+}
+
+function buildBag(item, fit, D, root, add, at, arms, F) {
+  const hs = Math.pow(D.H / 175, .8) * (fit.k || 1);
+  const mat = leatherMat(item.color);
+  const strapMat = leatherMat(new THREE.Color(item.color).multiplyScalar(.7).getStyle());
+  if (item.type === 'rucsac') {
+    const w = 27 * hs, h = 37 * hs, d = 12 * hs, y = D.yChest - 6, r = F.surf(y);
+    const z = -(r * D.SZ + d / 2 + .4);
+    const b = add(new THREE.Mesh(new RoundedBoxGeometry(w * S, h * S, d * S, 4, 3 * hs * S), mat)); at(b, 0, y, z);
+    const p = add(new THREE.Mesh(new RoundedBoxGeometry(w * .7 * S, h * .35 * S, 3 * hs * S, 3, 1.4 * hs * S), mat)); at(p, 0, y - h * .2, z - d / 2 - 1.2 * hs);
+    for (const s of [1, -1]) {
+      const sx = D.R(D.ySh) * D.SX * .5, yb = D.yChest - 10;
+      const pts = [[s * w * .3, y + h * .38, z + d / 2], [s * sx, D.ySh + 3.2, -2], [s * sx * 1.15, D.ySh + 2, 3],
+        [s * D.R(D.yChest) * D.SX * .62, D.yChest, F.frontZAt(s * D.R(D.yChest) * D.SX * .62, D.yChest) + .6],
+        [s * F.surf(yb) * D.SX * .93, yb, 2], [s * w * .4, y - h * .4, z + d / 2]].map(q => new THREE.Vector3(q[0] * S, q[1] * S, q[2] * S));
+      const tube = add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 48, 1.1 * hs * S, 6), strapMat));
+      tube.scale.x = 1;
+    }
+    return;
+  }
+  if (item.type === 'poseta') {
+    const arm = arms.find(q => q.side === -1);
+    const g = new THREE.Group(); g.position.set(0, -(D.armLen + D.handLen * .75) * S, 0); g.rotation.z = D.armA; arm.g.add(g);
+    const w = 10 * hs, h = 18 * hs, d = 26 * hs;
+    at(add(new THREE.Mesh(new RoundedBoxGeometry(w * S, h * S, d * S, 4, 2 * hs * S), mat), g), -1, -h / 2 - 6 * hs, 0);
+    const hd = add(new THREE.Mesh(new THREE.TorusGeometry(7 * hs * S, .7 * hs * S, 8, 24, Math.PI), strapMat), g);
+    hd.rotation.y = Math.PI / 2; at(hd, -1, -6 * hs, 0);
+    const cl = add(new THREE.Mesh(new RoundedBoxGeometry(w * 1.04 * S, 2 * S, 3 * S, 2, .5 * S), metalMat('#c9a24a')), g); at(cl, -1, -6 * hs - 2.5, 0);
+    return;
+  }
+  // geantă de umăr / borsetă purtate în diagonală (umărul stâng → șoldul drept)
+  const big = item.type === 'geanta';
+  const w = (big ? 28 : 21) * hs, h = (big ? 21 : 16) * hs, d = (big ? 9 : 6) * hs;
+  const by = big ? D.yHip + 3 : D.yHip + 1, bx = -F.surf(by) * D.SX * .62;
+  const bz = F.frontZAt(bx, by) + d / 2 + .3;
+  const b = add(new THREE.Mesh(new RoundedBoxGeometry(w * S, h * S, d * S, 4, 2.2 * hs * S), mat)); at(b, bx, by, bz); b.rotation.y = .5;
+  const flap = add(new THREE.Mesh(new RoundedBoxGeometry(w * 1.01 * S, h * .55 * S, .6 * S, 2, .3 * S), strapMat));
+  at(flap, bx + Math.sin(.5) * (d / 2 + .3), by + h * .2, bz + Math.cos(.5) * (d / 2 + .3)); flap.rotation.y = .5;
+  const shX = D.R(D.ySh - 2) * D.SX * .5, top = by + h / 2;
+  const pts = [];
+  for (let i = 0; i <= 8; i++) {
+    const s = i / 8, x = lerp(shX, bx + w * .3, s), y = lerp(D.ySh + 3, top, s);
+    pts.push(new THREE.Vector3(x, y, Math.max(F.frontZAt(x, y) + .7, s > .9 ? bz : 0)));
+  }
+  const sideX = -(F.surf(top) * D.SX + 1.2);
+  pts.push(new THREE.Vector3(sideX, top + 2, 0));
+  for (let i = 8; i >= 1; i--) {
+    const s = i / 8, x = lerp(shX, sideX * .8, s), y = lerp(D.ySh + 3, top + 4, s);
+    pts.push(new THREE.Vector3(x, y, -(F.surf(y) * D.SZ * Math.sqrt(Math.max(0, 1 - (x / (F.surf(y) * D.SX)) ** 2)) + .7)));
+  }
+  pts.push(new THREE.Vector3(shX * 1.05, D.ySh + 3.6, 0));
+  add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(p => p.multiplyScalar(S)), true), 160, .7 * hs * S, 6, true), strapMat));
+}
+
+/*MH_RUNTIME*/
+
+// ------------------------------------------------------------------ scena
+const stage = document.getElementById('stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
+const MOBILE = matchMedia('(pointer:coarse)').matches || innerWidth < 820;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = .95;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+stage.prepend(renderer.domElement);
+
+// ------------------------------------------------------------------ calitatea imaginii
+// Automată: pornește sus și coboară rezoluția dacă telefonul nu ține pasul (sub ~40 cadre/s), apoi urcă la loc când poate.
+// Scena se desenează doar când se mișcă ceva (economie de baterie pe telefon).
+MAX_ANISO = Math.min(16, renderer.capabilities.getMaxAnisotropy());
+const DPR = devicePixelRatio || 1;
+const QUALITY = {
+  inalta:   { pr: Math.min(Math.max(DPR, MOBILE ? 1 : 1.5), MOBILE ? 2.5 : 3), shadow: MOBILE ? 2048 : 4096 },
+  medie:    { pr: Math.min(DPR, 1.5), shadow: MOBILE ? 1024 : 2048 },
+  economic: { pr: 1, shadow: 1024 },
+};
+const qual = { mode: 'auto', pr: 1, max: 1, ceil: 9, slow: 0, good: 0, acc: 0, n: 0 };
+function setShadow(size) {
+  if (key.shadow.mapSize.x === size) return;
+  key.shadow.mapSize.set(size, size); key.shadow.map?.dispose(); key.shadow.map = null;
+}
+function setPR(pr) {
+  qual.pr = Math.round(pr * 100) / 100;
+  renderer.setPixelRatio(qual.pr); onResize();
+  const w = Math.round(stage.clientWidth * qual.pr), h = Math.round(stage.clientHeight * qual.pr);
+  $('qInfo').textContent = `${w} × ${h} px` + (qual.mode === 'auto' ? ' · automat' : '');
+}
+function setQuality(mode) {
+  qual.mode = mode;
+  const q = QUALITY[mode === 'auto' ? 'inalta' : mode];
+  setShadow(mode === 'auto' && MOBILE ? 2048 : q.shadow);
+  qual.max = q.pr; qual.ceil = 9; qual.acc = qual.n = qual.slow = qual.good = 0;
+  setPR(mode === 'auto' && MOBILE ? Math.min(q.pr, 2) : q.pr);
+  try { localStorage.setItem('doinadress_calitate', mode); } catch (e) {}
+  invalidate();
+}
+function qualityTick(ms) {          // apelat pentru fiecare cadru desenat imediat după altul
+  if (qual.mode !== 'auto') return;
+  qual.acc += ms; ++qual.n;
+  if (qual.n < 40 && !(qual.acc > 1200 && qual.n >= 4)) return;   // ~40 cadre sau ~1 s
+  const avg = qual.acc / qual.n; qual.acc = qual.n = 0;
+  if (avg > 25 && qual.pr > 1) {                                    // prea încet: coborâm și ținem minte plafonul
+    if (++qual.slow >= 2) { qual.ceil = qual.pr * .97; setPR(Math.max(1, qual.pr * .8)); qual.slow = 0; }
+    qual.good = 0;
+  } else if (avg < 18.5 && qual.pr < Math.min(qual.max, qual.ceil) - .05) {
+    qual.slow = 0;
+    if (++qual.good >= 4) { setPR(Math.min(qual.max, qual.ceil, qual.pr * 1.12)); qual.good = 0; }
+  } else qual.slow = qual.good = 0;
+}
+let dirty = 3, lastDraw = 0;
+function invalidate(n = 2) { dirty = Math.max(dirty, n); }
+for (const ev of ['pointerdown', 'pointermove', 'pointerup', 'wheel', 'keydown', 'input', 'change', 'click', 'touchmove'])
+  addEventListener(ev, () => invalidate(), { passive: true, capture: true });
+document.addEventListener('visibilitychange', () => invalidate());
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#1a1e26');
+scene.fog = new THREE.Fog('#1a1e26', 9, 22);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(renderer), .04).texture;
+scene.environmentIntensity = .42;
+
+const camera = new THREE.PerspectiveCamera(35, 1, .05, 100);
+camera.position.set(0, 1.7, 8.6);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, .9, 0); controls.enableDamping = true; controls.maxPolarAngle = Math.PI * .52;
+controls.minDistance = .8; controls.maxDistance = 16;
+
+scene.add(new THREE.HemisphereLight('#dfe8ff', '#3b3226', .55));
+const key = new THREE.DirectionalLight('#fff4e6', 2.2);
+key.position.set(2.5, 5, 4.5); key.castShadow = true;
+Object.assign(key.shadow.camera, { left: -5, right: 5, top: 4, bottom: -1, near: .5, far: 15 });
+key.shadow.bias = -.0004; key.shadow.normalBias = .02;
+scene.add(key);
+const rim = new THREE.DirectionalLight('#9fc0ff', 1.1); rim.position.set(-4, 3.5, -4); scene.add(rim);
+const fill = new THREE.DirectionalLight('#ffffff', .5); fill.position.set(-3, 2, 5); scene.add(fill);
+
+{ // podea
+  const c = document.createElement('canvas'); c.width = c.height = 512; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(256, 256, 20, 256, 256, 256); gr.addColorStop(0, '#3a3f4b'); gr.addColorStop(.4, '#1a1e26'); gr.addColorStop(1, '#1a1e26');   // aceeași lumină ca discul vechi de 12 m
+  g.fillStyle = gr; g.fillRect(0, 0, 512, 512);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(30, 96)   /* mare: pe ecrane verticale camera stă departe */, new THREE.MeshStandardMaterial({ map: t, roughness: .9 }));
+  floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+}
+
+// ------------------------------------------------------------------ modelele pe scenă (oricâte)
+const pedMat = new THREE.MeshStandardMaterial({ color: '#2a2f3a', roughness: .35, metalness: .3 });
+const ringMat = new THREE.MeshBasicMaterial({ color: '#d4a35a' });
+let slots = [], labels = [];
+const labelsEl = document.getElementById('labels');
+function disposeTree(o) { o.traverse(n => { if (n.geometry) n.geometry.dispose(); if (n.material && !n.material.map?.isCanvasTexture && n.material !== pedMat && n.material !== ringMat) n.material.dispose?.(); }); }
+function layoutPos(j, n) { const off = j - (n - 1) / 2; return [off * 1.15, -off * off * Math.min(.09, 1.6 / (n * n))]; }
+function rebuildScene() {
+  if (cmp) { cmp = null; $('cmpBar').classList.add('hidden'); }
+  slots.forEach(s => { scene.remove(s.holder); disposeTree(s.holder); });
+  labels.forEach(l => l.remove());
+  slots = AVS.map((a, i) => {
+    const holder = new THREE.Group(); const [x, z] = layoutPos(i, AVS.length); holder.position.set(x, 0, z); scene.add(holder);
+    const ped = new THREE.Mesh(new THREE.CylinderGeometry(.43, .46, .05, 64), pedMat); ped.position.y = .025; ped.receiveShadow = true; holder.add(ped);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(.445, .006, 8, 96), ringMat);
+    ring.rotation.x = Math.PI / 2; ring.position.y = .05; ring.visible = false; holder.add(ring);
+    const spin = new THREE.Group(); spin.position.y = .05; holder.add(spin);
+    return { holder, spin, ring, model: null };
+  });
+  labels = AVS.map((a, i) => {
+    const d = document.createElement('div'); d.className = 'lbl'; d.textContent = shortName(a);
+    d.onclick = () => { select(i); focusOn(i); };
+    labelsEl.appendChild(d); return d;
+  });
+  AVS.forEach((_, i) => rebuild(i));
+  const span = AVS.length * 1.15;
+  key.shadow.camera.left = -span / 2 - 1; key.shadow.camera.right = span / 2 + 1; key.shadow.camera.updateProjectionMatrix();
+}
+function rebuild(i) {
+  const s = slots[i];
+  if (s.model) { s.spin.remove(s.model); disposeTree(s.model); }
+  s.model = buildAvatar(AVS[i]);
+  s.model.position.y = (s.model.userData.lift || 0) * S;
+  s.spin.add(s.model);
+  if (labels[i]) labels[i].textContent = shortName(AVS[i]);
+  if (cmp && cmp.i === i) buildCompare();
+}
+
+const v3 = new THREE.Vector3();
+function updateLabels() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  AVS.forEach((a, i) => {
+    v3.set(0, (a.body.height + 14) * S, 0); slots[i].holder.localToWorld(v3); v3.project(camera);
+    const vis = v3.z < 1 && Math.abs(v3.x) < 1.1 && Math.abs(v3.y) < 1.1;
+    labels[i].style.display = vis && !tour.on && !cmp ? '' : 'none';
+    labels[i].style.left = ((v3.x + 1) / 2 * w) + 'px'; labels[i].style.top = ((1 - v3.y) / 2 * h) + 'px';
+    labels[i].classList.toggle('sel', i === sel);
+  });
+}
+
+// ------------------------------------------------------------------ cameră / prezentare
+let camGoal = null;
+function focusOn(i, side = .35, mul = 1) {
+  const H = AVS[i].body.height * S, p = slots[i].holder.position;
+  const target = new THREE.Vector3(p.x, H * .52, p.z);
+  const narrow = camera.aspect < .8 ? clamp(.8 / camera.aspect, 1, 1.9) : 1;   // ecran de telefon în portret
+  const dist = (H * 2.1 + .6) * mul * narrow;
+  const dir = new THREE.Vector3(side, .14, 1).normalize();
+  camGoal = { target, pos: target.clone().add(dir.multiplyScalar(dist)) };
+}
+function focusFace(i) {
+  const D = dims(AVS[i]), p = slots[i].holder.position;
+  const target = new THREE.Vector3(p.x, (D.yHeadC - 6) * S + .05, p.z);
+  camGoal = { target, pos: target.clone().add(new THREE.Vector3(.25, .05, 1).normalize().multiplyScalar(.75)) };
+}
+// distanța la care încape toată familia, pe lățime și pe înălțime, pentru orice ecran (telefon vertical/orizontal, tabletă, pliabil)
+const overviewDist = () => {
+  const n = AVS.length, W = (n - 1) * 1.15 + 1.4, H = 2.4, t = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+  return Math.max(8.4, H / 2 / t, W / 2 / (t * camera.aspect) + .8);
+};
+function overview() { controls.maxDistance = Math.max(16, overviewDist() + 4); camGoal = { target: new THREE.Vector3(0, .85, -.3), pos: new THREE.Vector3(0, 1.75, overviewDist()) }; }
+controls.addEventListener('start', () => { if (!tour.on) camGoal = null; });
+
+const tour = { on: false, step: 0, t: 0, dur: 7 };
+const card = document.getElementById('card');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+function showCard(i) {
+  const a = AVS[i];
+  const rows = SLOTS.filter(s => a.outfit[s]).map(s => {
+    const it = a.outfit[s], f = fitOf(s, it, a);
+    const sz = s.startsWith('acc') ? '' : (it.size || ''), pr = productById(it.produs);
+    const name = pr ? esc(pr.nume) + ` <span class="fit none">${money(pr.pret)}</span>`
+      : (typesFor(s)[it.type]?.n || esc(it.type)) + (it.pattern && it.pattern !== 'uni' ? ' · ' + PATTERNS[it.pattern].toLowerCase() : '');
+    return `<li><span><i class="sw" style="background:${esc(it.color)}"></i>${name}</span>
+      <span>${sz ? '<b>' + esc(sz) + '</b> ' : ''}<span class="fit ${f.cls}">${f.label}</span></span></li>`;
+  }).join('');
+  const b = a.body, tot = cartLines(a).reduce((s, x) => s + x.p.pret, 0);
+  card.innerHTML = `<h3>${esc(a.nume || a.rol)}</h3><div class="sub">${a.nume ? esc(a.rol) + ' · ' : ''}${b.height} cm · bust ${b.chest} · talie ${b.waist} · șold ${b.hips} · pantof ${b.shoe}</div><ul>${rows}</ul>`
+    + (tot ? `<div class="sub" style="margin:8px 0 0;text-align:right">Total din magazin: <b style="color:var(--accent)">${money(tot)}</b></div>` : '');
+  card.style.display = 'block';
+}
+function setTour(on) {
+  if (on) stopCompare();
+  tour.on = on; tour.step = 0; tour.t = 0;
+  document.body.classList.toggle('tour', on);
+  if (on) { document.body.classList.remove('sheet'); applyViewOffset(); }
+  document.getElementById('btnTour').textContent = on ? 'Oprește prezentarea ■' : 'Prezentare 3D ▶';
+  card.style.display = 'none';
+  if (on) overview(); else { slots.forEach(s => s.spin.rotation.y = 0); focusOn(sel); }
+  setTimeout(onResize, 0);
+}
+function tourTick(dt) {
+  tour.t += dt;
+  const n = AVS.length, idx = tour.step;            // 0 = vedere generală, 1..n = fiecare model
+  if (idx === 0) {
+    const ang = tour.t * .35;
+    camGoal = { target: new THREE.Vector3(0, .85, -.3), pos: new THREE.Vector3(Math.sin(ang) * 3.2, 1.9, overviewDist() - .2 - Math.abs(Math.sin(ang)) * .8) };
+    slots.forEach(s => s.spin.rotation.y += dt * .5);
+  } else slots[idx - 1].spin.rotation.y += dt * TAU / tour.dur;
+  if (tour.t > (idx === 0 ? 9 : tour.dur)) {
+    tour.t = 0; tour.step = (idx + 1) % (n + 1);
+    slots.forEach(s => s.spin.rotation.y = 0);
+    if (tour.step === 0) card.style.display = 'none';
+    else { focusOn(tour.step - 1, .15); showCard(tour.step - 1); }
+  }
+}
+
+// ------------------------------------------------------------------ panou
+let sel = 0, spinOn = false;
+const $ = s => document.getElementById(s);
+const avEl = $('avatars');
+function renderAvatars() {
+  avEl.innerHTML = '';
+  AVS.forEach((a, i) => {
+    const b = document.createElement('div'); b.className = 'av' + (i === sel ? ' sel' : '');
+    b.innerHTML = (a.face ? `<img src="${a.face}" alt="">` : `<div class="ph">${esc((shortName(a)[0] || '?').toUpperCase())}</div>`) + `<span>${esc(shortName(a).split(' ')[0])}</span>`;
+    b.title = displayName(a); b.onclick = () => { select(i); focusOn(i); };
+    avEl.appendChild(b);
+  });
+}
+function select(i) {
+  sel = clamp(i, 0, AVS.length - 1);
+  if (cmp && cmp.i !== sel) stopCompare();
+  [...avEl.children].forEach((c, j) => c.classList.toggle('sel', j === sel));
+  slots.forEach((s, j) => s.ring.visible = j === sel);
+  renderModel(); renderPanel();
+}
+// --- secțiunea „Model”
+$('mSablon').innerHTML = DEFAULT_DB.modele.map(m => `<option value="${esc(m.id)}">șablon: ${esc(m.rol)}</option>`).join('');
+function renderModel() {
+  const a = AVS[sel];
+  $('mNume').value = a.nume; $('mRol').value = a.rol; $('mGen').value = a.gen; $('mVarsta').value = a.varsta;
+  $('mPar').value = a.hair.style; $('mParC').value = a.hair.color; $('mPiele').value = a.skin;
+  $('fScale').value = a.faceAdj.scale; $('fDy').value = a.faceAdj.dy; $('fBright').value = a.faceAdj.bright; $('fMask').value = a.faceAdj.mask;
+  $('mDel').disabled = AVS.length <= 1;
+}
+const modelEdit = (fn, panel = false) => () => {
+  const a = AVS[sel]; fn(a); save(a); rebuild(sel); renderAvatars();
+  if (panel) renderPanel();
+};
+$('mNume').oninput = modelEdit(a => a.nume = $('mNume').value.trim());
+$('mRol').oninput = modelEdit(a => a.rol = $('mRol').value.trim(), true);
+$('mGen').onchange = modelEdit(a => a.gen = $('mGen').value, true);
+$('mVarsta').onchange = modelEdit(a => a.varsta = $('mVarsta').value, true);
+$('mPar').onchange = modelEdit(a => a.hair.style = $('mPar').value);
+$('mParC').oninput = modelEdit(a => a.hair.color = $('mParC').value);
+$('mPiele').oninput = modelEdit(a => a.skin = $('mPiele').value);
+$('fScale').oninput = modelEdit(a => a.faceAdj.scale = +$('fScale').value);
+$('fDy').oninput = modelEdit(a => a.faceAdj.dy = +$('fDy').value);
+$('fBright').oninput = modelEdit(a => a.faceAdj.bright = +$('fBright').value);
+$('fMask').oninput = modelEdit(a => a.faceAdj.mask = +$('fMask').value);
+function addModel(m) {
+  AVS.push(normalizeModel(m)); save(m); rebuildScene(); renderAvatars(); select(AVS.length - 1); overview();
+}
+$('mNou').onclick = () => {
+  const tpl = DEFAULT_DB.modele.find(m => m.id === $('mSablon').value) || DEFAULT_DB.modele[0];
+  const m = clone(tpl);
+  Object.assign(m, { id: 'm' + Date.now().toString(36), nume: '', face: null, sursa: null, faceAdj: { scale: 1, dy: 0, bright: 1, mask: .42 } });
+  addModel(m);
+};
+$('mDup').onclick = () => {
+  const m = clone(AVS[sel]); m.id = 'm' + Date.now().toString(36); m.nume = (m.nume ? m.nume + ' ' : '') + '(copie)'; addModel(m);
+};
+$('mDel').onclick = async () => {
+  if (AVS.length <= 1 || !(await askConfirm(`Ștergi modelul „${displayName(AVS[sel])}” din bază?`))) return;
+  AVS.splice(sel, 1); save(); rebuildScene(); renderAvatars(); select(Math.min(sel, AVS.length - 1)); overview();
+};
+
+// --- măsuri + ținută
+const BODY_F = [['height', 'Înălțime'], ['chest', 'Bust'], ['waist', 'Talie'], ['hips', 'Șold'], ['shoe', 'Pantof']];
+function renderPanel() {
+  const a = AVS[sel];
+  const bodyEl = $('body');
+  bodyEl.innerHTML = BODY_F.map(([k, l]) => `<label>${l}<input type="number" step="${k === 'shoe' ? .5 : 1}" data-k="${k}" value="${a.body[k]}"></label>`).join('');
+  bodyEl.querySelectorAll('input').forEach(inp => inp.onchange = () => {
+    const v = parseFloat(inp.value); if (!isFinite(v) || v <= 0) return;
+    a.body[inp.dataset.k] = v; changed();
+  });
+  const sl = $('slots'); sl.innerHTML = '';
+  for (const s of SLOTS) {
+    const it = a.outfit[s], types = typesFor(s), f = fitOf(s, it, a);
+    const hasPat = ['top', 'bottom', 'dress', 'outer'].includes(s), hasSize = !s.startsWith('acc');
+    const div = document.createElement('div'); div.className = 'slot';
+    const q = c => div.querySelector(c);
+    const prod = productById(it?.produs);
+    if (prod) {                       // articol din catalog: produs, preț, mărimile disponibile, comparație
+      const sizes = Object.keys(prod.marimi), rec = recommendFor(prod, a), tb = CAT.tabele[prod.tabel];
+      const opts = sizes.length ? sizes : [it.size];
+      div.innerHTML = `
+        <div class="slot-h"><span>${SLOT_LABEL[s]}</span><span class="sh-r"><span class="fit ${f.cls}">${f.label}</span><button class="mini catb" title="Alt produs din catalog">🛍</button></span></div>
+        <div class="prod-line">${imgTag(prod)}<div><b>${esc(prod.nume)}</b><span>${esc(prod.marca)}${prod.marca ? ' · ' : ''}${money(prod.pret)}</span></div><button class="mini unlink" title="Scoate articolul">✕</button></div>
+        ${hasSize ? `<div class="slot-c prod"><select class="szp">${opts.map(z => `<option value="${esc(z)}" ${String(z) === String(it.size) ? 'selected' : ''}>${esc(z)}${stockOf(prod, z) === 0 ? ' (epuizat)' : ''}</option>`).join('')}</select>${sizes.length > 1 ? '<button class="cmpb">⇆ Compară mărimi</button>' : ''}</div>
+        <div class="hint">Recomandat${tb ? ` după tabelul mărcii (${MASURA_N[tb.masura]})` : ''}: <b>${esc(rec)}</b>${stockOf(prod, it.size) === 0 ? ' · <span class="out-l">mărimea aleasă nu e în stoc</span>' : ''}</div>` : ''}`;
+      q('.unlink').onclick = () => { a.outfit[s] = null; stopCompare(); changed(); };
+      q('.catb').onclick = () => openCatalog(prod.slot);
+      if (q('.szp')) q('.szp').onchange = e => { it.size = e.target.value; changed(); };
+      if (q('.cmpb')) q('.cmpb').onclick = () => startCompare(s);
+      sl.appendChild(div); continue;
+    }
+    div.innerHTML = `
+      <div class="slot-h"><span>${SLOT_LABEL[s]}</span><span class="sh-r"><span class="fit ${it ? f.cls : 'none'}">${it ? f.label : ''}</span><button class="mini catb" title="Alege din catalog">🛍</button></span></div>
+      <div class="slot-c ${hasPat ? '' : hasSize ? 'nopat' : 'nosize'}">
+        <select class="ty"><option value="">— nimic —</option>${Object.entries(types).map(([k, v]) => `<option value="${k}" ${it?.type === k ? 'selected' : ''}>${v.n}</option>`).join('')}</select>
+        ${hasSize ? `<input class="sz" placeholder="mărime" value="${esc(it?.size ?? '')}" ${it ? '' : 'disabled'}>` : ''}
+        <input class="co" type="color" value="${esc(it?.color ?? '#888888')}" ${it ? '' : 'disabled'}>
+        ${hasPat ? `<select class="pa" ${it ? '' : 'disabled'}>${Object.entries(PATTERNS).map(([k, v]) => `<option value="${k}" ${it?.pattern === k ? 'selected' : ''}>${v}</option>`).join('')}</select>` : ''}
+      </div>
+      ${hasSize ? `<div class="hint">Recomandat pentru ${esc(shortName(a))}: <b>${recommend(s, a)}</b>${s === 'bag' ? ' (S / M / L)' : ''}</div>` : ''}`;
+    q('.catb').onclick = () => openCatalog(s.startsWith('acc') ? 'acc' : s);
+    q('.ty').onchange = e => {
+      const v = e.target.value;
+      if (!v) a.outfit[s] = null;
+      else {
+        const prev = a.outfit[s];
+        putItem(a, s, { type: v, color: prev?.color ?? q('.co').value, pattern: prev?.pattern ?? 'uni', size: prev?.size ?? recommend(s, a).split(' /')[0] });
+      }
+      changed(true);
+    };
+    q('.co').oninput = e => { a.outfit[s].color = e.target.value; changedSoon(); };
+    if (q('.pa')) q('.pa').onchange = e => { a.outfit[s].pattern = e.target.value; changed(); };
+    sl.appendChild(div);
+  }
+  renderCart();
+}
+function putItem(a, s, item) {
+  a.outfit[s] = item;
+  if (s === 'dress' && !TYPES.dress[item.type].sarafan) { a.outfit.top = null; a.outfit.bottom = null; }   // rochia completă înlocuiește bluza și pantalonii
+  if ((s === 'top' || s === 'bottom') && a.outfit.dress && !TYPES.dress[a.outfit.dress.type].sarafan) a.outfit.dress = null;
+}
+let soonT = 0;
+function changedSoon() { clearTimeout(soonT); soonT = setTimeout(() => changed(false), 120); }
+function changed(redrawPanel = true) {
+  rebuild(sel); save(AVS[sel]);
+  if (redrawPanel) renderPanel();
+  else document.querySelectorAll('#slots .slot').forEach((d, j) => {
+    const s = SLOTS[j], it = AVS[sel].outfit[s], f = fitOf(s, it, AVS[sel]);
+    const fe = d.querySelector('.fit'); fe.className = 'fit ' + (it ? f.cls : 'none'); fe.textContent = it ? f.label : '';
+  });
+}
+$('slots').addEventListener('input', e => { if (e.target.classList.contains('sz')) {
+  const j = [...document.querySelectorAll('#slots .slot')].indexOf(e.target.closest('.slot'));
+  AVS[sel].outfit[SLOTS[j]].size = e.target.value; changed(false);
+} });
+
+$('btnReset').onclick = () => {
+  const a = AVS[sel], d = DEFAULT_DB.modele.find(m => m.id === a.id);
+  if (!d) { dbStatus('Modelul nu există în baza inițială — nu are valori de resetat.'); return; }
+  a.body = clone(d.body); a.outfit = clone(d.outfit); changed();
+};
+$('btnPng').onclick = () => {
+  renderer.render(scene, camera);
+  saveFile(`DoinaDress_${AVS[sel].id}.png`, 'image/png', renderer.domElement.toDataURL('image/png'));
+};
+$('btnTour').onclick = () => setTour(!tour.on);
+$('btnTour2').onclick = () => setTour(true);
+$('btnAll').onclick = () => { if (tour.on) setTour(false); stopCompare(); overview(); };
+$('btnFocus').onclick = () => { if (tour.on) setTour(false); focusOn(sel); };
+$('btnSpin').onclick = e => { spinOn = !spinOn; e.target.textContent = 'Rotire: ' + (spinOn ? 'pornită' : 'oprită'); if (!spinOn) slots[sel].spin.rotation.y = 0; };
+addEventListener('keydown', e => { if (e.key === 'Escape') { if (tour.on) setTour(false); closeFace(); closeProduct(); closeCatalog(); } });
+
+// --- dialog de confirmare propriu (confirm() nu funcționează în aplicațiile Android/iPhone)
+function askConfirm(msg) {
+  return new Promise(res => {
+    $('dlgMsg').textContent = msg; $('dlg').classList.remove('hidden');
+    const done = v => { $('dlg').classList.add('hidden'); $('dlgYes').onclick = $('dlgNo').onclick = null; res(v); };
+    $('dlgYes').onclick = () => done(true); $('dlgNo').onclick = () => done(false);
+  });
+}
+// --- salvarea unui fișier: în aplicația mobilă prin puntea nativă, pe iPhone prin „Partajează”, altfel descărcare
+const blobToB64 = b => new Promise(r => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(',')[1]); fr.readAsDataURL(b); });
+async function saveFile(name, mime, data) {
+  if (window.DoinaBridge) {
+    const b64 = typeof data === 'string' ? data.split(',')[1] : await blobToB64(data);
+    window.DoinaBridge.postMessage(JSON.stringify({ type: 'save', name, mime, b64 }));
+    return;
+  }
+  if (/iPhone|iPad|iPod/.test(navigator.userAgent) && navigator.canShare) {
+    try {
+      const blob = typeof data === 'string' ? await (await fetch(data)).blob() : data;
+      const file = new File([blob], name, { type: mime });
+      if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
+    } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  const url = typeof data === 'string' ? data : URL.createObjectURL(data);
+  const l = document.createElement('a'); l.href = url; l.download = name; document.body.appendChild(l); l.click(); l.remove();
+  if (typeof data !== 'string') setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+// --- foaia glisantă de pe telefon
+const MOBILE_LAYOUT = () => matchMedia('(max-width:820px)').matches;
+function applyViewOffset() {       // cu panoul deschis, scena se mută în partea de sus a ecranului
+  const w = stage.clientWidth, h = stage.clientHeight;
+  if (MOBILE_LAYOUT() && document.body.classList.contains('sheet')) camera.setViewOffset(w, h, 0, h * .31, w, h);
+  else camera.clearViewOffset();
+}
+function setSheet(open) {
+  document.body.classList.toggle('sheet', open);
+  $('sheetBtn').textContent = open ? '▼ Închide panoul' : '☰ Model și ținută';
+  applyViewOffset();
+  if (!tour.on) (open && MOBILE_LAYOUT() ? focusOn(sel, .2, 2.5) : focusOn(sel));
+}
+$('sheetBtn').onclick = () => setSheet(!document.body.classList.contains('sheet'));
+// butonul „Înapoi” din aplicația Android: închide ce e deschis; false = nimic de închis (aplicația se poate închide)
+window.__doinaBack = () => {
+  if (!$('dlg').classList.contains('hidden')) { $('dlgNo').click(); return true; }
+  if (!$('welcome').classList.contains('hidden')) { $('wlGo').click(); return true; }
+  if (!$('faceModal').classList.contains('hidden')) { closeFace(); return true; }
+  if (!$('pModal').classList.contains('hidden')) { closeProduct(); return true; }
+  if (!$('catModal').classList.contains('hidden')) { closeCatalog(); return true; }
+  if (cmp) { stopCompare(); focusOn(sel); return true; }
+  if (tour.on) { setTour(false); return true; }
+  if (document.body.classList.contains('sheet')) { setSheet(false); return true; }
+  return false;
+};
+
+// --- baza de modele: export / import (actualizare) / revenire
+$('dbExport').onclick = () => {
+  const out = clone(DB); delete out.revizieBaza; out.modele.forEach(m => delete m.modificat);
+  const blob = new Blob([JSON.stringify(out, null, 1)], { type: 'application/json' });
+  saveFile(`baza_modele_${new Date().toISOString().slice(0, 10)}.json`, 'application/json', blob);
+};
+$('dbImport').onclick = () => $('dbFile').click();
+$('dbFile').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const inc = migrate(JSON.parse(await f.text()));
+    let nou = 0, act = 0;
+    inc.modele.forEach(m => {
+      m.modificat = true;
+      const i = AVS.findIndex(x => x.id === m.id);
+      if (i >= 0) { AVS[i] = m; act++; } else { AVS.push(m); nou++; }
+    });
+    save(); rebuildScene(); renderAvatars(); select(sel); overview();
+    dbStatus(`Import reușit din „${f.name}”: ${act} modele actualizate, ${nou} adăugate.`);
+  } catch (err) { dbStatus('Import eșuat: ' + err.message); }
+};
+$('dbReset').onclick = async () => {
+  if (!(await askConfirm('Revii la baza inițială? Modelele și fețele adăugate de tine se pierd (exportă baza înainte, dacă vrei să le păstrezi).'))) return;
+  DB = clone(DEFAULT_DB); DB.revizieBaza = DEFAULT_DB.revizie; AVS = DB.modele;
+  save(); rebuildScene(); renderAvatars(); select(0); overview();
+};
+
+// ------------------------------------------------------------------ catalogul magazinului: imagini, fereastra catalogului, coș, comparație
+const norm = s => String(s ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+function toast(msg) {
+  const d = document.createElement('div'); d.className = 'toast'; d.textContent = msg; document.body.appendChild(d);
+  setTimeout(() => d.remove(), 3500);
+}
+
+// --- imaginea produsului: fotografia lui sau, dacă lipsește, o imagine 3D pe manechin
+const thumb = { r: null, cache: new Map(), queue: [], busy: false };
+const MANECHIN = {
+  femei:   { gen: 'f', varsta: 'adult', body: { height: 168, chest: 90, waist: 72, hips: 98, shoe: 38 } },
+  barbati: { gen: 'm', varsta: 'adult', body: { height: 178, chest: 100, waist: 86, hips: 100, shoe: 43 } },
+  copii:   { gen: 'f', varsta: 'copil', body: { height: 128, chest: 64, waist: 58, hips: 66, shoe: 31 } },
+};
+function thumbScene() {
+  if (thumb.r) return thumb;
+  const r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  r.setPixelRatio(1); r.setSize(320, 400, false);
+  r.toneMapping = THREE.ACESFilmicToneMapping; r.toneMappingExposure = 1; r.outputColorSpace = THREE.SRGBColorSpace;
+  const sc = new THREE.Scene(); sc.background = new THREE.Color('#ebe8e3');
+  sc.environment = new THREE.PMREMGenerator(r).fromScene(new RoomEnvironment(r), .04).texture; sc.environmentIntensity = .55;
+  sc.add(new THREE.HemisphereLight('#ffffff', '#bdb6aa', 1));
+  const k = new THREE.DirectionalLight('#fff8ef', 1.8); k.position.set(1.5, 3, 4); sc.add(k);
+  const f = new THREE.DirectionalLight('#dfe8ff', .6); f.position.set(-3, 1, 2); sc.add(f);
+  Object.assign(thumb, { r, scene: sc, cam: new THREE.PerspectiveCamera(28, .8, .05, 50) });
+  return thumb;
+}
+const thumbKey = p => [p.id, p.slot, p.tip, p.culoare, p.model, p.pentru[0], p.desen?.cm, p.desen?.img?.length, p.desen?.img?.slice(-24)].join('|');
+function renderThumb(p) {
+  const T = thumbScene(), slot = slotOfProduct(p);
+  const m = normalizeModel(clone({ id: '__manechin', rol: '', ...(MANECHIN[p.pentru[0]] || MANECHIN.femei),
+    skin: '#d6d0c8', hair: { style: 'chel', color: '#000000' }, face: null, outfit: {} }));
+  m.outfit[slot] = { type: p.tip, color: p.culoare, pattern: p.model === 'foto' ? 'uni' : p.model, size: '', produs: p.id };
+  m.outfit[slot].size = recommendFor(p, m);
+  // manechinul de catalog poartă dedesubt piese neutre, ca produsul să fie arătat pe un corp îmbrăcat decent
+  const NEUTRU = '#cfc9c0';
+  if (!['top', 'dress', 'outer'].includes(slot) && !(slot === 'bag' || slot.startsWith('acc')) || slot === 'bottom' || slot === 'shoes')
+    m.outfit.top = { type: 'tricou', color: NEUTRU, pattern: 'uni', size: '' };
+  if (slot.startsWith('acc') || slot === 'bag') m.outfit.top = { type: 'tricou', color: NEUTRU, pattern: 'uni', size: '' };
+  if (['top', 'outer', 'shoes', 'bag'].includes(slot) || slot.startsWith('acc')) m.outfit.bottom = { type: 'pantaloni', color: NEUTRU, pattern: 'uni', size: '' };
+  const obj = buildAvatar(m); obj.position.y = (obj.userData.lift || 0) * S;
+  const D = dims(m), t = typesFor(slot)[p.tip] || {};
+  const head = ['ochelari', 'palarie', 'sapca'].includes(p.tip);
+  const [y0, y1] = slot === 'shoes' ? [-2, 26]
+    : slot === 'bottom' ? [t.skirt && t.hem === 'genunchi' ? D.kneeY - 14 : -2, D.yWaist + 8]
+    : slot === 'dress' ? [t.hem === 'glezna' ? -2 : D.kneeY - 18, D.ySh + 8]
+    : slot === 'bag' ? [D.yCr - 32, D.ySh + 8]
+    : slot.startsWith('acc') ? (head ? [D.yHeadC - 20, D.H + 10] : p.tip === 'curea' ? [D.yCr - 8, D.yWaist + 14] : [D.yChest - 20, D.yHeadC + 4])
+    : slot === 'outer' ? [D.yCr - 16, D.ySh + 8] : [D.yCr - 8, D.ySh + 8];
+  const cy = (y0 + y1) / 2 * S, half = (y1 - y0) / 2 * S * 1.1, dist = half / Math.tan(THREE.MathUtils.degToRad(14));
+  const ang = p.tip === 'rucsac' ? 2.7 : .45;
+  T.cam.position.set(Math.sin(ang) * dist, cy + dist * .08, Math.cos(ang) * dist); T.cam.lookAt(0, cy, 0);
+  T.scene.add(obj); T.r.render(T.scene, T.cam);
+  const url = T.r.domElement.toDataURL('image/jpeg', .86);
+  T.scene.remove(obj); disposeTree(obj);
+  return url;
+}
+function productImg(p) {
+  if (p.poza) return p.poza;
+  const k = thumbKey(p);
+  if (thumb.cache.has(k)) return thumb.cache.get(k);
+  if (!thumb.queue.some(x => x.k === k)) thumb.queue.push({ k, p });
+  pumpThumbs();
+  return '';
+}
+function pumpThumbs() {
+  if (thumb.busy || !thumb.queue.length) return;
+  thumb.busy = true;
+  setTimeout(() => {               // câte una, ca interfața să rămână fluidă
+    const { k, p } = thumb.queue.shift();
+    let url = '';
+    try { url = renderThumb(p); } catch (e) { console.warn('imagine produs', e); }
+    thumb.cache.set(k, url);
+    document.querySelectorAll('img[data-thumb]').forEach(im => { if (im.dataset.thumb === k) { im.src = url; delete im.dataset.thumb; } });
+    thumb.busy = false; pumpThumbs();
+  }, 15);
+}
+const imgTag = p => { const src = productImg(p); return src ? `<img src="${src}" alt="">` : `<img data-thumb="${esc(thumbKey(p))}" alt="">`; };
+
+// --- fereastra catalogului
+const catUI = { q: '', slot: '', pentru: 'auto', sort: '' };
+$('catSlot').innerHTML = '<option value="">Toate categoriile</option>' + Object.entries(CAT_SLOTS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+function openCatalog(slot = '') {
+  if (tour.on) setTour(false);
+  catUI.slot = slot; $('catSlot').value = slot; $('catShop').textContent = CAT.magazin;
+  renderCatalog(); $('catModal').classList.remove('hidden');
+}
+function closeCatalog() { $('catModal').classList.add('hidden'); }
+function catalogList() {
+  const a = AVS[sel], who = catUI.pentru === 'auto' ? pentruOf(a) : catUI.pentru, q = norm(catUI.q).trim();
+  const L = CAT.produse.filter(p => (!catUI.slot || p.slot === catUI.slot) && (!who || p.pentru.includes(who))
+    && (!q || norm([p.nume, p.cod, p.marca, p.descriere, TYPES[p.slot][p.tip]?.n, CAT_SLOTS[p.slot]].join(' ')).includes(q)));
+  if (catUI.sort === 'pret') L.sort((x, y) => x.pret - y.pret);
+  else if (catUI.sort === '-pret') L.sort((x, y) => y.pret - x.pret);
+  else if (catUI.sort === 'nume') L.sort((x, y) => x.nume.localeCompare(y.nume, 'ro'));
+  return L;
+}
+function renderCatalog() {
+  const a = AVS[sel]; $('catFor').textContent = shortName(a);
+  const L = catalogList();
+  $('catGrid').innerHTML = L.length ? L.map(p => {
+    const rec = recommendFor(p, a), sizes = Object.entries(p.marimi), worn = SLOTS.some(s => a.outfit[s]?.produs === p.id);
+    const red = p.pretVechi > p.pret;
+    return `<div class="pc" data-id="${esc(p.id)}">
+      <div class="im">${imgTag(p)}${red ? `<span class="badge">−${Math.round((1 - p.pret / p.pretVechi) * 100)}%</span>` : ''}</div>
+      <div class="bd"><div class="nm">${esc(p.nume)}</div><div class="mk">${esc(p.marca)}${p.cod ? ' · ' + esc(p.cod) : ''}</div>
+        <div class="pr">${money(p.pret)}${red ? `<s>${money(p.pretVechi)}</s>` : ''}</div>
+        ${sizes.length ? `<div class="szs">${sizes.map(([s, n]) => `<span class="${s === rec ? 'rec' : ''} ${+n <= 0 ? 'out' : ''}" title="${+n > 0 ? 'în stoc: ' + n : 'stoc epuizat'}">${esc(s)}</span>`).join('')}</div>` : '<div class="mk">mărime unică</div>'}
+        ${rec ? `<div class="rec-l">Pentru ${esc(shortName(a))}: <b>${esc(rec)}</b>${stockOf(p, rec) === 0 ? ' <span class="out-l">(epuizat)</span>' : ''}</div>` : ''}
+        <div class="act"><button class="primary try">${worn ? '✓ Pe avatar' : 'Probează'}</button><button class="edit" title="Editează produsul">✎</button></div>
+      </div></div>`;
+  }).join('') : '<p class="status">Niciun produs nu se potrivește filtrelor.</p>';
+}
+$('catGrid').onclick = e => {
+  const c = e.target.closest('.pc'), p = c && productById(c.dataset.id); if (!p) return;
+  if (e.target.closest('.edit')) openProduct(p); else if (e.target.closest('.try')) tryOn(p);
+};
+$('catQ').oninput = e => { catUI.q = e.target.value; renderCatalog(); };
+$('catSlot').onchange = e => { catUI.slot = e.target.value; renderCatalog(); };
+$('catPentru').onchange = e => { catUI.pentru = e.target.value; renderCatalog(); };
+$('catSort').onchange = e => { catUI.sort = e.target.value; renderCatalog(); };
+$('catClose').onclick = closeCatalog;
+$('catOpen').onclick = () => openCatalog();
+$('btnCat').onclick = () => openCatalog();
+$('catAdmin').ontoggle = () => { $('catModal').classList.toggle('admin', $('catAdmin').open); if ($('catAdmin').open) $('catCharts').value = chartsText(); };
+
+function tryOn(p) {
+  const a = AVS[sel];
+  let s = slotOfProduct(p);
+  if (s === 'acc1' && a.outfit.acc1 && a.outfit.acc1.produs !== p.id && (!a.outfit.acc2 || a.outfit.acc2.produs === p.id)) s = 'acc2';
+  putItem(a, s, { type: p.tip, color: p.culoare, pattern: p.model === 'foto' ? 'uni' : p.model, size: recommendFor(p, a), produs: p.id });
+  stopCompare(); changed(); closeCatalog();
+  if (MOBILE_LAYOUT() && document.body.classList.contains('sheet')) setSheet(false);
+  if (['ochelari', 'palarie', 'sapca'].includes(p.tip)) focusFace(sel); else focusOn(sel);
+  toast(`${p.nume} · mărimea ${a.outfit[s].size || 'unică'}: ${fitOf(s, a.outfit[s], a).label}`);
+}
+// după editarea unui produs, avatarele care îl poartă se actualizează
+function syncProduct(p, removed = false) {
+  AVS.forEach((a, i) => {
+    let ch = false;
+    SLOTS.forEach(s => {
+      const it = a.outfit[s]; if (it?.produs !== p.id) return;
+      ch = true;
+      if (removed) { delete it.produs; return; }
+      if (slotOfProduct(p) !== s && !(p.slot === 'acc' && s.startsWith('acc'))) { a.outfit[s] = null; return; }
+      Object.assign(it, { type: p.tip, color: p.culoare, pattern: p.model === 'foto' ? 'uni' : p.model });
+      const sizes = Object.keys(p.marimi);
+      if (sizes.length && stockOf(p, it.size) == null) it.size = recommendFor(p, a);
+    });
+    if (ch) { save(a); rebuild(i); }
+  });
+  renderPanel();
+}
+
+// --- coșul: produsele din catalog purtate de avatar, cu total; lista se trimite prin WhatsApp / e-mail
+function cartLines(a) {
+  return SLOTS.map(s => ({ s, it: a.outfit[s], p: productById(a.outfit[s]?.produs) })).filter(x => x.p);
+}
+function renderCart() {
+  const a = AVS[sel], L = cartLines(a), tot = L.reduce((t, x) => t + x.p.pret, 0);
+  $('cart').innerHTML = L.length
+    ? L.map(x => `<div class="ci"><span>${esc(x.p.nume)}${x.it.size ? ' · <b>' + esc(x.it.size) + '</b>' : ''}${stockOf(x.p, x.it.size) === 0 ? ' <span class="out-l">epuizat</span>' : ''}</span><span>${money(x.p.pret)}</span></div>`).join('')
+      + `<div class="tot"><span>Total ${esc(shortName(a))}</span><b>${money(tot)}</b></div>
+         <div class="row"><button id="cartShare" class="primary">📤 Trimite lista</button><button id="cartAll">Lista pentru toată familia</button></div>`
+    : `<div class="empty">Niciun produs din catalog pe ${esc(shortName(a))}. Apasă „🛍 Alege din catalogul magazinului”.</div>`;
+  if (L.length) { $('cartShare').onclick = () => shareText(cartText([a])); $('cartAll').onclick = () => shareText(cartText(AVS)); }
+}
+function cartText(models) {
+  let tot = 0;
+  const out = [`${CAT.magazin} – lista de cumpărături (${new Date().toLocaleDateString('ro-RO')})`, ''];
+  models.forEach(a => {
+    const L = cartLines(a); if (!L.length) return;
+    out.push(shortName(a) + ':');
+    L.forEach(x => { tot += x.p.pret; out.push(`  • ${x.p.nume}${x.p.cod ? ' (' + x.p.cod + ')' : ''}${x.it.size ? ', mărimea ' + x.it.size : ''} – ${money(x.p.pret)}`); });
+  });
+  out.push('', 'Total: ' + money(tot));
+  return out.join('\n');
+}
+async function shareText(text) {
+  if (window.DoinaBridge) { window.DoinaBridge.postMessage(JSON.stringify({ type: 'text', text })); return; }
+  if (navigator.share && MOBILE) { try { await navigator.share({ text }); return; } catch (e) { if (e.name === 'AbortError') return; } }
+  try { await navigator.clipboard.writeText(text); toast('Lista a fost copiată: o poți lipi în e-mail sau WhatsApp.'); return; } catch (e) {}
+  saveFile('lista_cumparaturi.txt', 'text/plain', new Blob([text], { type: 'text/plain' }));
+}
+
+// --- comparație: același avatar, alături, în altă mărime
+let cmp = null;
+function startCompare(slot) {
+  const a = AVS[sel], it = a.outfit[slot], p = productById(it?.produs); if (!p) return;
+  const sizes = Object.keys(p.marimi), i = sizes.findIndex(z => z === String(it.size));
+  cmp = { i: sel, slot, size: sizes[i + 1] ?? sizes[i - 1] ?? sizes[0] };
+  if (tour.on) setTour(false);
+  spinOn = false; $('btnSpin').textContent = 'Rotire: oprită';
+  if (MOBILE_LAYOUT() && document.body.classList.contains('sheet')) setSheet(false);
+  buildCompare(true);
+}
+function stopCompare() {
+  if (!cmp) return;
+  if (cmp.group) { cmp.group.parent?.remove(cmp.group); disposeTree(cmp.group); }
+  cmp = null; slots.forEach(s => s.holder.visible = true); $('cmpBar').classList.add('hidden'); invalidate();
+}
+function buildCompare(focus = false) {
+  const a = AVS[cmp.i], it = a?.outfit[cmp.slot], p = productById(it?.produs);
+  if (!p || !slots[cmp.i]) { stopCompare(); return; }
+  if (cmp.group) { cmp.group.parent?.remove(cmp.group); disposeTree(cmp.group); }
+  const twin = clone(a); twin.outfit[cmp.slot].size = cmp.size;
+  const g = new THREE.Group(); g.position.set(1, 0, 0);
+  const ped = new THREE.Mesh(new THREE.CylinderGeometry(.43, .46, .05, 64), pedMat); ped.position.y = .025; ped.receiveShadow = true; g.add(ped);
+  const m = buildAvatar(twin); m.position.y = .05 + (m.userData.lift || 0) * S; g.add(m);
+  slots[cmp.i].holder.add(g); slots[cmp.i].spin.rotation.y = 0; cmp.group = g;
+  slots.forEach((s, j) => s.holder.visible = j === cmp.i);
+  const fa = fitOf(cmp.slot, it, a), fb = fitOf(cmp.slot, twin.outfit[cmp.slot], a);
+  $('cmpBar').innerHTML = `<span class="side">Stânga: <b>${esc(it.size)}</b> <span class="fit ${fa.cls}">${fa.label}</span></span>
+    <span class="side">Dreapta: <select id="cmpSel">${Object.keys(p.marimi).map(z => `<option ${z === cmp.size ? 'selected' : ''}>${esc(z)}</option>`).join('')}</select> <span class="fit ${fb.cls}">${fb.label}</span></span>
+    <button id="cmpTake" class="primary">Aleg ${esc(cmp.size)}</button><button id="cmpClose">✕ Închide</button>`;
+  $('cmpBar').classList.remove('hidden');
+  $('cmpSel').onchange = e => { cmp.size = e.target.value; buildCompare(); };
+  $('cmpTake').onclick = () => { it.size = cmp.size; stopCompare(); changed(); focusOn(sel); };
+  $('cmpClose').onclick = () => { stopCompare(); focusOn(sel); };
+  if (focus) {
+    const H = a.body.height * S, hp = slots[cmp.i].holder.position, target = new THREE.Vector3(hp.x + .5, H * .52, hp.z);
+    const narrow = camera.aspect < .8 ? clamp(.8 / camera.aspect, 1, 2.6) : 1;
+    camGoal = { target, pos: target.clone().add(new THREE.Vector3(0, .14, 1).normalize().multiplyScalar((H * 2.1 + 1.2) * narrow)) };
+  }
+  invalidate();
+}
+
+// --- editorul de produs (administrare)
+const pe = { p: null, img: null, poza: undefined, rect: null, rectNew: false, drag: null, colorSet: false };
+const pC = $('pCanvas'), pG = pC.getContext('2d');
+$('pSlot').innerHTML = Object.entries(CAT_SLOTS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('');
+$('pModel').innerHTML = Object.entries(PATTERNS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('') + '<option value="foto">Desen din poză (imprimeu real)</option>';
+function fillTip() { $('pTip').innerHTML = Object.entries(TYPES[$('pSlot').value]).map(([k, v]) => `<option value="${k}">${v.n}</option>`).join(''); peUI(); }
+function openProduct(p) {
+  const P = pe.p = p ? clone(p) : normalizeProduct({ id: 'p' + Date.now().toString(36), nume: '', slot: catUI.slot || 'top', pentru: [pentruOf(AVS[sel])], marimi: {} });
+  Object.assign(pe, { isNew: !p, img: null, poza: undefined, rect: P.desen?.rect || null, rectNew: false, drag: null, colorSet: !!p });
+  $('pTitle').textContent = p ? 'Editează: ' + p.nume : 'Produs nou';
+  $('pTabel').innerHTML = '<option value="">— fără tabel (mărimi standard) —</option>'
+    + Object.entries(CAT.tabele).map(([k, tb]) => `<option value="${esc(k)}">${esc(tb.nume || k)} · ${MASURA_N[tb.masura]}</option>`).join('');
+  $('pNume').value = P.nume === 'Produs' && !p ? '' : P.nume; $('pCod').value = P.cod; $('pMarca').value = P.marca || CAT.magazin;
+  $('pSlot').value = P.slot; fillTip(); $('pTip').value = P.tip;
+  document.querySelectorAll('#pPentru input').forEach(c => c.checked = P.pentru.includes(c.value));
+  $('pPret').value = P.pret || ''; $('pPretV').value = P.pretVechi || ''; $('pCul').value = P.culoare; $('pModel').value = P.model;
+  $('pMarimi').value = Object.entries(P.marimi).map(([s, n]) => `${s}:${n}`).join(', ');
+  $('pTabel').value = P.tabel in CAT.tabele ? P.tabel : ''; $('pDesc').value = P.descriere; $('pCm').value = P.desen?.cm || 10;
+  $('pDel').style.display = p ? '' : 'none'; $('pFile').value = '';
+  if (P.poza) { const im = new Image(); im.onload = () => { pe.img = im; peDraw(); peUI(); }; im.src = P.poza; }
+  $('pModal').classList.remove('hidden'); peDraw(); peUI();
+}
+function closeProduct() { $('pModal').classList.add('hidden'); }
+function peUI() {
+  const g = GARMENT.includes($('pSlot').value);
+  $('pModel').disabled = !g;
+  if (!g) $('pModel').value = 'uni';
+  const foto = $('pModel').value === 'foto';
+  $('pCmL').style.display = foto ? '' : 'none';
+  $('pHint').textContent = !pe.img ? 'Alege o fotografie a produsului (opțional). Fără poză, catalogul arată produsul pe un manechin 3D.'
+    : foto ? 'Trage un dreptunghi peste o zonă cu material (fără cute sau umbre). Zona devine imprimeul hainei 3D.'
+    : 'Poza apare în catalog. Pentru imprimeul real pe haina 3D alege „Model material: Desen din poză”.';
+}
+function peView() {
+  const im = pe.img, s = Math.min(pC.width / im.naturalWidth, pC.height / im.naturalHeight);
+  return { s, x: (pC.width - im.naturalWidth * s) / 2, y: (pC.height - im.naturalHeight * s) / 2 };
+}
+function peDraw() {
+  pG.fillStyle = '#ebe8e3'; pG.fillRect(0, 0, pC.width, pC.height);
+  if (!pe.img) { pG.fillStyle = '#8a8f99'; pG.font = '15px system-ui, sans-serif'; pG.fillText('Fără poză', 20, 34); return; }
+  const v = peView(); pG.drawImage(pe.img, v.x, v.y, pe.img.naturalWidth * v.s, pe.img.naturalHeight * v.s);
+  if ($('pModel').value === 'foto' && pe.rect) {
+    const r = squareOf(pe.rect);
+    pG.strokeStyle = '#d4a35a'; pG.lineWidth = 3; pG.setLineDash([8, 5]);
+    pG.strokeRect(v.x + r[0] * v.s, v.y + r[1] * v.s, r[2] * v.s, r[3] * v.s); pG.setLineDash([]);
+  }
+}
+const squareOf = r => { const s = Math.min(r[2], r[3]); return [r[0] + (r[2] - s) / 2, r[1] + (r[3] - s) / 2, s, s]; };
+const centerRect = im => { const s = Math.min(im.naturalWidth, im.naturalHeight) * .35; return [(im.naturalWidth - s) / 2, (im.naturalHeight - s) / 2, s, s]; };
+function cropDesen(im, rect) {
+  const [x, y, s] = squareOf(rect), N = 512, c = document.createElement('canvas'); c.width = c.height = N;
+  const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(im, x, y, Math.max(1, s), Math.max(1, s), 0, 0, N, N);
+  return c.toDataURL('image/jpeg', .88);
+}
+function shrink(im, max = 900) {
+  const k = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight)), c = document.createElement('canvas');
+  c.width = Math.round(im.naturalWidth * k); c.height = Math.round(im.naturalHeight * k);
+  const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(im, 0, 0, c.width, c.height);
+  return c;
+}
+function dominantColor(src) {      // culoarea mediană din centrul pozei, ignorând fundalul alb
+  const c = document.createElement('canvas'); c.width = 48; c.height = 60;
+  const g = c.getContext('2d'); g.drawImage(src, 0, 0, 48, 60);
+  const d = g.getImageData(12, 15, 24, 30).data, px = [[], [], []];
+  for (let i = 0; i < d.length; i += 4) {
+    const mx = Math.max(d[i], d[i + 1], d[i + 2]), mn = Math.min(d[i], d[i + 1], d[i + 2]);
+    if (mx > 232 && mx - mn < 18) continue;
+    px[0].push(d[i]); px[1].push(d[i + 1]); px[2].push(d[i + 2]);
+  }
+  if (!px[0].length) return '#f2f2f2';
+  const med = a => a.sort((x, y) => x - y)[a.length >> 1];
+  return '#' + px.map(a => med(a).toString(16).padStart(2, '0')).join('');
+}
+const loadImg = src => new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => rej(new Error('imagine invalidă')); im.src = src; });
+async function fileToPhoto(f) {    // fișier -> { poza (dataURL redus), img }
+  const url = URL.createObjectURL(f);
+  try { const c = shrink(await loadImg(url)), poza = c.toDataURL('image/jpeg', .86); return { poza, img: await loadImg(poza), canvas: c }; }
+  finally { URL.revokeObjectURL(url); }
+}
+$('pFile').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const r = await fileToPhoto(f);
+    pe.img = r.img; pe.poza = r.poza; pe.rect = centerRect(r.img); pe.rectNew = true;
+    if (!pe.colorSet) $('pCul').value = dominantColor(r.canvas);
+    peDraw(); peUI();
+  } catch (err) { toast('Nu am putut citi poza: ' + err.message); }
+};
+$('pCul').oninput = () => { pe.colorSet = true; };
+$('pAutoColor').onclick = () => { if (pe.img) { $('pCul').value = dominantColor(pe.img); pe.colorSet = true; } };
+$('pNoPhoto').onclick = () => { pe.img = null; pe.poza = null; pe.rect = null; if ($('pModel').value === 'foto') $('pModel').value = 'uni'; peDraw(); peUI(); };
+$('pSlot').onchange = fillTip;
+$('pModel').onchange = () => { if ($('pModel').value === 'foto' && pe.img && !pe.rect) { pe.rect = centerRect(pe.img); pe.rectNew = true; } peUI(); peDraw(); };
+const pXY = e => { const b = pC.getBoundingClientRect(); return [(e.clientX - b.left) * pC.width / b.width, (e.clientY - b.top) * pC.height / b.height]; };
+pC.onpointerdown = e => {
+  if (!pe.img || $('pModel').value !== 'foto') return;
+  pC.setPointerCapture(e.pointerId); const v = peView(), [x, y] = pXY(e); pe.drag = [(x - v.x) / v.s, (y - v.y) / v.s];
+};
+pC.onpointermove = e => {
+  if (!pe.drag) return;
+  const v = peView(), [x, y] = pXY(e), q = [(x - v.x) / v.s, (y - v.y) / v.s], W = pe.img.naturalWidth, H = pe.img.naturalHeight;
+  const x0 = clamp(Math.min(pe.drag[0], q[0]), 0, W), y0 = clamp(Math.min(pe.drag[1], q[1]), 0, H);
+  const w = clamp(Math.abs(q[0] - pe.drag[0]), 0, W - x0), h = clamp(Math.abs(q[1] - pe.drag[1]), 0, H - y0);
+  if (Math.min(w, h) > 6) { pe.rect = [x0, y0, w, h]; pe.rectNew = true; peDraw(); }
+};
+pC.onpointerup = pC.onpointercancel = () => { pe.drag = null; };
+function parseMarimi(s) {
+  const o = {};
+  String(s ?? '').split(/[,;\n|]+/).map(x => x.trim()).filter(Boolean).forEach(x => {
+    const m = x.match(/^(.+?)\s*[:=]\s*(-?\d+)$/);
+    if (m) o[m[1].trim()] = +m[2]; else o[x] = 1;
+  });
+  return o;
+}
+$('pSave').onclick = async () => {
+  const P = pe.p;
+  Object.assign(P, {
+    nume: $('pNume').value.trim() || 'Produs', cod: $('pCod').value.trim(), marca: $('pMarca').value.trim(), slot: $('pSlot').value, tip: $('pTip').value,
+    pentru: [...document.querySelectorAll('#pPentru input:checked')].map(c => c.value),
+    pret: parseFloat($('pPret').value) || 0, pretVechi: parseFloat($('pPretV').value) || 0, culoare: $('pCul').value, model: $('pModel').value,
+    marimi: parseMarimi($('pMarimi').value), tabel: $('pTabel').value, descriere: $('pDesc').value.trim(),
+  });
+  if (pe.poza !== undefined) P.poza = pe.poza;
+  if (P.model === 'foto') {
+    const cm = clamp(+$('pCm').value || 10, 1, 200);
+    if (pe.img && pe.rect && (pe.rectNew || !P.desen)) P.desen = { img: cropDesen(pe.img, pe.rect), cm, rect: pe.rect };
+    else if (P.desen) P.desen.cm = cm;
+  }
+  normalizeProduct(P);
+  await loadDesen(P);
+  const i = CAT.produse.findIndex(x => x.id === P.id);
+  if (i >= 0) CAT.produse[i] = P; else CAT.produse.push(P);
+  saveCat(P); syncProduct(P); closeProduct(); renderCatalog();
+  toast(`Produsul „${P.nume}” a fost salvat.`);
+};
+$('pDel').onclick = async () => {
+  const P = pe.p; if (!(await askConfirm(`Ștergi produsul „${P.nume}” din catalog?`))) return;
+  CAT.produse = CAT.produse.filter(x => x.id !== P.id); saveCat(); syncProduct(P, true); closeProduct(); renderCatalog();
+};
+$('pClose').onclick = $('pCancel').onclick = closeProduct;
+$('catNew').onclick = () => openProduct(null);
+
+// --- tabele de mărimi (text editabil)
+function chartsText() {
+  return Object.entries(CAT.tabele).map(([k, tb]) => `[${k}] ${tb.nume || ''} · ${tb.masura}\n` + tb.marimi.map(r => `${r.m} ${r.min}-${r.max}`).join('\n')).join('\n\n');
+}
+function parseCharts(txt) {
+  const out = {}; let cur = null;
+  txt.split(/\r?\n/).forEach((line, n) => {
+    const l = line.trim(); if (!l || l.startsWith('#')) return;
+    let m = l.match(/^\[([^\]]+)\]\s*(.*)$/);
+    if (m) {
+      const parts = m[2].split('·'), ms = norm(parts.length > 1 ? parts.pop() : '').trim();
+      if (!MASURA[ms]) throw new Error(`Rândul ${n + 1}: după „·” scrie măsura: bust, talie, sold, pantof sau inaltime.`);
+      cur = out[m[1].trim()] = { nume: parts.join('·').trim(), masura: ms, marimi: [] };
+      return;
+    }
+    m = l.match(/^(\S+)\s+(\d+(?:[.,]\d+)?)\s*[-–]\s*(\d+(?:[.,]\d+)?)$/);
+    if (!m || !cur) throw new Error(`Rândul ${n + 1} nu e înțeles: „${l}”. Exemplu corect: M 86-90`);
+    cur.marimi.push({ m: m[1], min: parseFloat(m[2].replace(',', '.')), max: parseFloat(m[3].replace(',', '.')) });
+  });
+  return out;
+}
+$('catChartsSave').onclick = () => {
+  try {
+    const tb = parseCharts($('catCharts').value);
+    Object.values(tb).forEach(x => x.modificat = true);
+    CAT.tabele = tb; saveCat();
+    AVS.forEach((_, i) => rebuild(i)); renderPanel(); renderCatalog();
+    $('catStatus').textContent = `Tabele salvate: ${Object.keys(tb).length}.`;
+  } catch (err) { $('catStatus').textContent = 'Eroare: ' + err.message; }
+};
+
+// --- import / export (CSV din Excel, JSON complet cu poze)
+const SLOT_ALIAS = { top: 'top sus bluze bluza camasi camasa pulovere pulover tricouri tricou', bottom: 'bottom jos pantaloni fuste fusta blugi',
+  dress: 'dress rochii rochie sarafan', outer: 'outer exterior geci geaca hanorace hanorac sacouri sacou paltoane palton veste vesta',
+  shoes: 'shoes incaltaminte pantofi', bag: 'bag genti geanta rucsac', acc: 'acc accesorii accesoriu' };
+const CULORI = { alb: '#f2f2f2', negru: '#1a1a1a', gri: '#8a8a8a', rosu: '#c0392b', bordo: '#6d1a2a', roz: '#e88aa8', portocaliu: '#e07a3a',
+  galben: '#e8c53a', verde: '#3f8f4f', kaki: '#7a7a4a', albastru: '#2f6fb0', bleumarin: '#1f2f5f', bleu: '#a9c4e0', mov: '#6f4a8a',
+  maro: '#6a4428', bej: '#d8c4a0', crem: '#f1e8d6', auriu: '#d4a35a', argintiu: '#c7c7c7' };
+function parseCSV(txt) {
+  txt = txt.replace(/^﻿/, '');
+  const first = txt.split(/\r?\n/)[0];
+  const d = first.includes('\t') ? '\t' : (first.match(/;/g) || []).length >= (first.match(/,/g) || []).length ? ';' : ',';
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < txt.length; i++) {
+    const c = txt[i];
+    if (q) { if (c === '"') { if (txt[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+    else if (c === '"') q = true;
+    else if (c === d) { row.push(cell); cell = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && txt[i + 1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; }
+    else cell += c;
+  }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  const head = (rows.shift() || []).map(h => norm(h).trim().replace(/[\s-]+/g, '_'));
+  return rows.filter(r => r.some(x => x.trim())).map(r => Object.fromEntries(head.map((h, i) => [h, (r[i] ?? '').trim()])));
+}
+function rowToProduct(r) {
+  const tipN = norm(r.tip).trim(), catN = norm(r.categorie).trim();
+  let slot = Object.keys(SLOT_ALIAS).find(k => SLOT_ALIAS[k].split(' ').includes(catN));
+  const tipOf = sl => { const T = TYPES[sl]; return T[tipN] ? tipN : Object.keys(T).find(k => norm(T[k].n) === tipN) || Object.keys(T).find(k => tipN && norm(T[k].n).startsWith(tipN)); };
+  if (!slot) slot = Object.keys(CAT_SLOTS).find(sl => tipOf(sl)) || 'top';
+  const pen = norm(r.pentru).split(/[|,;\s/]+/).flatMap(x => ({ femei: 'femei', dama: 'femei', f: 'femei', barbati: 'barbati', m: 'barbati', b: 'barbati',
+    copii: 'copii', copil: 'copii', k: 'copii', unisex: ['femei', 'barbati'], toti: ['femei', 'barbati', 'copii'] })[x] || []);
+  const modN = norm(r.model).trim(), cul = norm(r.culoare).trim();
+  return {
+    cod: r.cod || '', nume: r.nume || '', marca: r.marca || '', slot, tip: tipOf(slot) || '', pentru: [...new Set(pen)],
+    pret: parseFloat(String(r.pret || '').replace(',', '.')) || 0, pretVechi: parseFloat(String(r.pret_vechi || '').replace(',', '.')) || 0,
+    culoare: /^#[0-9a-f]{6}$/i.test(r.culoare) ? r.culoare : CULORI[cul] || '#888888',
+    model: ['foto', 'poza', 'desen'].includes(modN) ? 'foto' : PATTERNS[modN] ? modN : Object.keys(PATTERNS).find(k => norm(PATTERNS[k]) === modN) || 'uni',
+    marimi: parseMarimi(r.marimi), tabel: r.tabel || '', descriere: r.descriere || '', _poza: r.poza || '', _cm: parseFloat(String(r.desen_cm || '').replace(',', '.')) || 0,
+  };
+}
+$('catImport').onclick = () => $('catFile').click();
+$('catFile').onchange = async e => {
+  const files = [...e.target.files]; e.target.value = ''; if (!files.length) return;
+  const data = files.find(f => /\.(csv|json|txt)$/i.test(f.name));
+  const imgs = new Map(files.filter(f => /^image\//.test(f.type) || /\.(jpe?g|png|webp)$/i.test(f.name)).map(f => [norm(f.name), f]));
+  $('catStatus').textContent = 'Import în curs…';
+  try {
+    let nou = 0, act = 0, poze = 0;
+    const upsert = P => {
+      const i = CAT.produse.findIndex(x => x.id === P.id || (P.cod && x.cod === P.cod));
+      if (i >= 0) { P.id = CAT.produse[i].id; P.poza ??= CAT.produse[i].poza; P.desen ??= CAT.produse[i].desen; CAT.produse[i] = P; act++; }
+      else { CAT.produse.push(P); nou++; }
+      P.modificat = true; return P;
+    };
+    let touched = [];
+    if (data && /\.json$/i.test(data.name)) {
+      const inc = migrateCatalog(JSON.parse(await data.text()));
+      Object.entries(inc.tabele).forEach(([k, tb]) => { CAT.tabele[k] = { ...tb, modificat: true }; });
+      touched = inc.produse.map(upsert);
+    } else if (data) {
+      const rows = parseCSV(await data.text());
+      if (!rows.length) throw new Error('fișierul CSV nu are rânduri.');
+      for (const r of rows) {
+        const x = rowToProduct(r), P = normalizeProduct({ ...x, id: undefined, poza: undefined, desen: undefined });
+        delete P._poza; delete P._cm;
+        const f = x._poza && imgs.get(norm(x._poza.split(/[\\/]/).pop()));
+        if (f) {
+          const ph = await fileToPhoto(f); P.poza = ph.poza; poze++;
+          if (x.model === 'foto' || x._cm) { const rect = centerRect(ph.img); P.desen = { img: cropDesen(ph.img, rect), cm: x._cm || 10, rect }; P.model = 'foto'; }
+        }
+        if (P.model === 'foto' && !P.desen) P.model = 'uni';
+        touched.push(upsert(P));
+      }
+    } else if (imgs.size) {        // doar poze: se potrivesc după codul produsului (ex. DD-1001.jpg)
+      for (const [name, f] of imgs) {
+        const base = name.replace(/\.[^.]+$/, ''), P = CAT.produse.find(x => x.cod && norm(x.cod) === base);
+        if (P) { P.poza = (await fileToPhoto(f)).poza; P.modificat = true; touched.push(P); poze++; act++; }
+      }
+    } else throw new Error('alege un fișier .csv sau .json (și, opțional, pozele produselor).');
+    await Promise.all(CAT.produse.map(loadDesen));
+    saveCat(); touched.forEach(P => syncProduct(P)); renderCatalog(); $('catCharts').value = chartsText();
+    $('catStatus').textContent = `Import reușit: ${nou} produse noi, ${act} actualizate, ${poze} poze.`;
+  } catch (err) { $('catStatus').textContent = 'Import eșuat: ' + err.message; }
+};
+$('catExpJson').onclick = () => {
+  const out = clone(CAT); delete out.revizieBaza; out.produse.forEach(p => delete p.modificat); Object.values(out.tabele).forEach(tb => delete tb.modificat);
+  saveFile(`catalog_${new Date().toISOString().slice(0, 10)}.json`, 'application/json', new Blob([JSON.stringify(out, null, 1)], { type: 'application/json' }));
+};
+$('catExpCsv').onclick = () => {
+  const cols = ['cod', 'nume', 'marca', 'categorie', 'tip', 'pentru', 'pret', 'pret_vechi', 'culoare', 'model', 'marimi', 'tabel', 'poza', 'desen_cm', 'descriere'];
+  const cell = v => { v = String(v ?? ''); return /[";\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const lines = [cols.join(';'), ...CAT.produse.map(p => [p.cod, p.nume, p.marca, p.slot, p.tip, p.pentru.join('|'), String(p.pret).replace('.', ','),
+    p.pretVechi ? String(p.pretVechi).replace('.', ',') : '', p.culoare, p.model, Object.entries(p.marimi).map(([s, n]) => `${s}:${n}`).join('|'),
+    p.tabel, p.poza ? (p.cod || p.id) + '.jpg' : '', p.desen?.cm || '', p.descriere].map(cell).join(';'))];
+  saveFile(`catalog_${new Date().toISOString().slice(0, 10)}.csv`, 'text/csv', new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv' }));
+};
+$('catReset').onclick = async () => {
+  if (!(await askConfirm('Revii la catalogul inițial? Produsele adăugate sau modificate în magazin se pierd (exportă catalogul înainte, dacă vrei să-l păstrezi).'))) return;
+  CAT = clone(DEFAULT_CAT); CAT.revizieBaza = DEFAULT_CAT.revizie;
+  await Promise.all(CAT.produse.map(loadDesen));
+  saveCat(); AVS.forEach((_, i) => rebuild(i)); renderPanel(); renderCatalog(); $('catCharts').value = chartsText();
+  $('catStatus').textContent = 'Catalogul inițial a fost restaurat.';
+};
+
+// --- încărcarea unei fețe noi din fotografie
+const fm = { img: null, pts: [], v: { s: 1, x: 0, y: 0 }, drag: null, aligned: null, name: '' };
+const fmC = $('fmCanvas'), fmG = fmC.getContext('2d'), fmP = $('fmPrev');
+function openFace() {
+  if (MOBILE_LAYOUT()) { fmC.width = 720; fmC.height = Math.round(720 * Math.min(1.25, (innerHeight * .6) / innerWidth)); }
+  Object.assign(fm, { img: null, pts: [], aligned: null }); $('fmFile').value = '';
+  $('fmName').textContent = displayName(AVS[sel]); $('fmUse').disabled = true;
+  $('faceModal').classList.remove('hidden'); fmDraw(); fmPreview();
+}
+function closeFace() { $('faceModal').classList.add('hidden'); }
+$('mFata').onclick = openFace; $('fmClose').onclick = closeFace;
+$('fmFile').onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  const im = new Image();
+  im.onload = () => { fm.img = im; fm.pts = []; fm.aligned = null; fm.name = f.name; fmFit(); fmPreview(); };
+  im.src = URL.createObjectURL(f);
+};
+function fmFit() {
+  if (!fm.img) return;
+  const s = Math.min(fmC.width / fm.img.naturalWidth, fmC.height / fm.img.naturalHeight);
+  fm.v = { s, x: (fmC.width - fm.img.naturalWidth * s) / 2, y: (fmC.height - fm.img.naturalHeight * s) / 2 }; fmDraw();
+}
+function fmZoom(f, cx = fmC.width / 2, cy = fmC.height / 2) {
+  const v = fm.v; v.x = cx - (cx - v.x) * f; v.y = cy - (cy - v.y) * f; v.s *= f; fmDraw();
+}
+function fmDraw() {
+  fmG.setTransform(1, 0, 0, 1, 0, 0); fmG.fillStyle = '#0d0f13'; fmG.fillRect(0, 0, fmC.width, fmC.height);
+  if (!fm.img) { fmG.fillStyle = '#9aa2b1'; fmG.font = '16px Inter, sans-serif'; fmG.fillText('Alege o fotografie de mai sus…', 24, 40); return; }
+  const v = fm.v; fmG.setTransform(v.s, 0, 0, v.s, v.x, v.y); fmG.imageSmoothingQuality = 'high'; fmG.drawImage(fm.img, 0, 0);
+  fmG.setTransform(1, 0, 0, 1, 0, 0);
+  fm.pts.forEach((p, i) => {
+    const x = p[0] * v.s + v.x, y = p[1] * v.s + v.y;
+    fmG.strokeStyle = '#d4a35a'; fmG.lineWidth = 2; fmG.beginPath(); fmG.arc(x, y, 9, 0, TAU); fmG.stroke();
+    fmG.beginPath(); fmG.moveTo(x - 14, y); fmG.lineTo(x + 14, y); fmG.moveTo(x, y - 14); fmG.lineTo(x, y + 14); fmG.stroke();
+    fmG.fillStyle = '#d4a35a'; fmG.font = 'bold 13px Inter, sans-serif'; fmG.fillText(i ? 'ochi 2' : 'ochi 1', x + 12, y - 12);
+  });
+}
+function fmPreview() {
+  const g = fmP.getContext('2d'); g.clearRect(0, 0, fmP.width, fmP.height);
+  if (!fm.aligned) {
+    g.fillStyle = '#9aa2b1'; g.font = '13px Inter, sans-serif';
+    g.fillText(fm.img ? `Click pe ochiul ${fm.pts.length + 1} din 2` : 'Previzualizare', 20, 160); return;
+  }
+  g.drawImage(maskedFace(fm.aligned, AVS[sel].faceAdj.bright, null, AVS[sel].faceAdj.mask), 0, 0, fmP.width, fmP.height);
+}
+const fmXY = e => { const r = fmC.getBoundingClientRect(); return [(e.clientX - r.left) * fmC.width / r.width, (e.clientY - r.top) * fmC.height / r.height]; };
+fmC.addEventListener('wheel', e => { e.preventDefault(); if (fm.img) { const [x, y] = fmXY(e); fmZoom(e.deltaY < 0 ? 1.18 : 1 / 1.18, x, y); } }, { passive: false });
+const fmPtr = new Map();
+fmC.addEventListener('pointerdown', e => {
+  fmC.setPointerCapture(e.pointerId); fmPtr.set(e.pointerId, fmXY(e));
+  if (fmPtr.size === 1) { const [x, y] = fmXY(e); fm.drag = { x, y, vx: fm.v.x, vy: fm.v.y, moved: false }; }
+  else { fm.drag = null; fm.pinch = null; }
+});
+fmC.addEventListener('pointermove', e => {
+  if (!fmPtr.has(e.pointerId) || !fm.img) return;
+  fmPtr.set(e.pointerId, fmXY(e));
+  if (fmPtr.size === 2) {                     // zoom cu două degete
+    const [p, q] = [...fmPtr.values()], dist = Math.hypot(p[0] - q[0], p[1] - q[1]), mid = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
+    if (fm.pinch) { fmZoom(dist / fm.pinch.dist, mid[0], mid[1]); fm.v.x += mid[0] - fm.pinch.mid[0]; fm.v.y += mid[1] - fm.pinch.mid[1]; fmDraw(); }
+    fm.pinch = { dist, mid };
+    return;
+  }
+  const d = fm.drag; if (!d) return;
+  const [x, y] = fmXY(e);
+  if (Math.hypot(x - d.x, y - d.y) > 8) d.moved = true;
+  if (d.moved) { fm.v.x = d.vx + x - d.x; fm.v.y = d.vy + y - d.y; fmDraw(); }
+});
+const fmEnd = e => {
+  const was = fmPtr.size; fmPtr.delete(e.pointerId);
+  if (fmPtr.size < 2) fm.pinch = null;
+  if (was > 1) { fm.drag = null; return; }
+  const d = fm.drag; fm.drag = null;
+  if (e.type !== 'pointerup' || !d || d.moved || !fm.img || fm.pts.length >= 2) return;
+  const [x, y] = fmXY(e);
+  fm.pts.push([(x - fm.v.x) / fm.v.s, (y - fm.v.y) / fm.v.s]);
+  if (fm.pts.length === 2) { fm.aligned = alignFace(fm.img, fm.pts[0], fm.pts[1]); $('fmUse').disabled = false; }
+  fmDraw(); fmPreview();
+};
+fmC.addEventListener('pointerup', fmEnd); fmC.addEventListener('pointercancel', fmEnd);
+$('fmZin').onclick = () => fmZoom(1.25); $('fmZout').onclick = () => fmZoom(1 / 1.25); $('fmFit').onclick = fmFit;
+$('fmRedo').onclick = () => { fm.pts = []; fm.aligned = null; $('fmUse').disabled = true; fmDraw(); fmPreview(); };
+$('fmUse').onclick = () => {
+  if (!fm.aligned) return;
+  const a = AVS[sel];
+  a.face = fm.aligned.toDataURL('image/jpeg', .9);
+  a.sursa = { foto: fm.name, ochi: fm.pts.map(p => p.map(Math.round)) };
+  if ($('fmSkin').checked) a.skin = skinOf(fm.aligned);
+  if (a.hair.style === 'chel') {        // manechin fără păr: îi dăm o coafură și culoarea părului din poză
+    a.hair = { style: a.gen === 'f' ? (a.varsta === 'copil' ? 'lung' : 'bob') : 'scurt', color: hairOf(fm.aligned) };
+    toast('Am ales o coafură și culoarea părului din poză. Le poți schimba la Model → Coafură.');
+  }
+  save(a); rebuild(sel); renderAvatars(); renderModel(); closeFace(); focusFace(sel);
+};
+
+function onResize() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+  controls.maxDistance = Math.max(16, overviewDist() + 4);     // ecran îngust: familia încape doar de mai departe
+  applyViewOffset(); invalidate();
+}
+addEventListener('resize', onResize);
+if (CLIENT) {                          // versiunea pentru clienți: fără administrarea catalogului, cu ghid la prima pornire
+  document.querySelector('#panel header h1').innerHTML = '<b>DoinaDress</b> · Cabina ta de probă 3D';
+  document.querySelector('#panel header p').textContent = 'Scrie măsurile tale, pune-ți fața dacă vrei, apoi probează hainele din catalog.';
+  $('catAdmin').hidden = true; $('btnAll').textContent = 'Toate avatarele';
+  $('mNume').placeholder = 'numele tău (opțional)';
+  const pr = document.createElement('p');
+  pr.textContent = 'Poza ta rămâne doar pe acest dispozitiv: nu se trimite nicăieri.';
+  document.querySelector('#faceModal .mbox p').after(pr);
+  let seen = false; try { seen = !!localStorage.getItem('doinadress_bunvenit'); } catch (e) {}
+  if (!seen && !location.hash) $('welcome').classList.remove('hidden');
+  $('wlGo').onclick = () => { $('welcome').classList.add('hidden'); try { localStorage.setItem('doinadress_bunvenit', '1'); } catch (e) {} };
+}
+await loadMH();
+$('corpInfo').textContent = MH.ok ? 'corp, haine și păr MakeHuman (CC0)' : 'corpul realist nu e disponibil: ' + (MH.err || '');
+$('corpSel').disabled = !MH.ok; $('corpSel').value = CORP.mode;
+if (MH.off) $('corpSel').closest('label').hidden = $('corpInfo').closest('label').hidden = true;   // varianta simplă: doar corpul vechi
+$('corpSel').onchange = e => { CORP.mode = e.target.value; try { localStorage.setItem('doinadress_corp', CORP.mode); } catch (err) {} thumb.cache.clear(); rebuildScene(); select(sel); };
+{ let q = 'auto'; try { q = localStorage.getItem('doinadress_calitate') || 'auto'; } catch (e) {}
+  if (!QUALITY[q] && q !== 'auto') q = 'auto';
+  $('qSel').value = q; $('qSel').onchange = e => setQuality(e.target.value); setQuality(q); }
+rebuildScene(); renderAvatars(); onResize(); select(0); overview(); dbStatus();
+if (location.protocol.startsWith('http') && 'serviceWorker' in navigator && !window.DoinaBridge)
+  navigator.serviceWorker.register('sw.js').catch(() => {});   // instalare ca aplicație (PWA) + funcționare offline
+{ // link direct: #barbat (tot corpul), #barbat-fata (prim-plan), #prezentare
+  const h = decodeURIComponent(location.hash.slice(1)), id = h.replace(/-fata$/, ''), i = AVS.findIndex(v => v.id === id);
+  if (i >= 0) { select(i); (h.endsWith('-fata') ? focusFace : focusOn)(i); camera.position.copy(camGoal.pos); controls.target.copy(camGoal.target); }
+  else if (h === 'prezentare') setTour(true);
+  else if (h === 'panou') { setSheet(true); camera.position.copy(camGoal.pos); controls.target.copy(camGoal.target); }
+}
+
+const clock = new THREE.Clock();
+let drewLast = false;
+const STATS = window.__doinaStats = { frames: 0, get pr() { return qual.pr; }, get calls() { return renderer.info.render.calls; } };
+renderer.setAnimationLoop(now => {
+  const raw = clock.getDelta() * 1000, dt = Math.min(raw / 1000, .05);
+  const anim = tour.on || spinOn || !!camGoal;
+  if (tour.on) tourTick(dt);
+  else if (spinOn) slots[sel].spin.rotation.y += dt * .8;
+  if (camGoal) {
+    const f = 1 - Math.exp(-dt * 2.4);
+    camera.position.lerp(camGoal.pos, f); controls.target.lerp(camGoal.target, f);
+    if (!tour.on && camera.position.distanceTo(camGoal.pos) < .01) camGoal = null;
+  }
+  const moved = controls.update();
+  if (!(anim || moved || dirty > 0 || now - lastDraw > 2000)) { drewLast = false; return; }
+  if (drewLast) qualityTick(raw);
+  { const d = camera.position.distanceTo(controls.target); scene.fog.near = d + .4; scene.fog.far = d + 13.4; }   // ceața urmează distanța camerei
+  renderer.render(scene, camera); STATS.frames++;
+  updateLabels();
+  dirty = Math.max(0, dirty - 1); lastDraw = now; drewLast = true;
+});
+</script>
+</body>
+</html>

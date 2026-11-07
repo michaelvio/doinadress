@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="fundal">#14171D</color>
+    <style name="Theme.DoinaDress" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/fundal</item>
+        <item name="android:colorAccent">#D4A35A</item>
+    </style>
+</resources>

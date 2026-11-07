@@ -1,0 +1,14 @@
+assets_src/
+build_cache/
+mobile/build/
+android_kotlin/.gradle/
+android_kotlin/build/
+android_kotlin/app/build/
+android_kotlin/app/src/*/assets/
+android_kotlin/local.properties
+kotlin_apk/
+
+# build outputs (nu se urcă în git)
+*.apk
+/DoinaDress_Cabina3D.html
+/magazin/DoinaDress_Magazin.html

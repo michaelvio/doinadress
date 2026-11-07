@@ -1,0 +1,360 @@
+{
+ "app": "DoinaDress",
+ "schema": 2,
+ "revizie": 1,
+ "modele": [
+  {
+   "id": "man_femeie",
+   "rol": "Femeie",
+   "nume": "",
+   "gen": "f",
+   "varsta": "adult",
+   "skin": "#e6e1da",
+   "hair": {
+    "style": "chel",
+    "color": "#2a201a"
+   },
+   "faceAdj": {
+    "scale": 1,
+    "dy": 0,
+    "bright": 1,
+    "mask": 0.42
+   },
+   "face": null,
+   "body": {
+    "height": 166,
+    "chest": 92,
+    "waist": 74,
+    "hips": 100,
+    "shoe": 38
+   },
+   "outfit": {
+    "top": null,
+    "bottom": null,
+    "dress": {
+     "type": "rochie_scurta",
+     "color": "#1f3a68",
+     "pattern": "buline",
+     "size": "L",
+     "produs": "p001"
+    },
+    "outer": null,
+    "shoes": {
+     "type": "toc",
+     "color": "#1a1a1a",
+     "pattern": "uni",
+     "size": "38",
+     "produs": "p018"
+    },
+    "bag": {
+     "type": "geanta",
+     "color": "#7a4a2a",
+     "pattern": "uni",
+     "size": "M",
+     "produs": "p020"
+    },
+    "acc1": {
+     "type": "esarfa",
+     "color": "#b03a48",
+     "pattern": "uni",
+     "size": "",
+     "produs": "p022"
+    },
+    "acc2": null
+   }
+  },
+  {
+   "id": "man_barbat",
+   "rol": "Bărbat",
+   "nume": "",
+   "gen": "m",
+   "varsta": "adult",
+   "skin": "#e6e1da",
+   "hair": {
+    "style": "chel",
+    "color": "#2a201a"
+   },
+   "faceAdj": {
+    "scale": 1,
+    "dy": 0,
+    "bright": 1,
+    "mask": 0.42
+   },
+   "face": null,
+   "body": {
+    "height": 180,
+    "chest": 100,
+    "waist": 86,
+    "hips": 100,
+    "shoe": 43
+   },
+   "outfit": {
+    "top": {
+     "type": "camasa",
+     "color": "#a9c4e0",
+     "pattern": "uni",
+     "size": "L",
+     "produs": "p005"
+    },
+    "bottom": {
+     "type": "pantaloni",
+     "color": "#2c2f36",
+     "pattern": "uni",
+     "size": "50",
+     "produs": "p010"
+    },
+    "dress": null,
+    "outer": {
+     "type": "sacou",
+     "color": "#2b3550",
+     "pattern": "uni",
+     "size": "L",
+     "produs": "p013"
+    },
+    "shoes": {
+     "type": "pantofi",
+     "color": "#3a2418",
+     "pattern": "uni",
+     "size": "43",
+     "produs": "p017"
+    },
+    "bag": null,
+    "acc1": {
+     "type": "cravata",
+     "color": "#1f2f5f",
+     "pattern": "uni",
+     "size": "",
+     "produs": "p024"
+    },
+    "acc2": null
+   }
+  },
+  {
+   "id": "man_adolescenta",
+   "rol": "Adolescentă",
+   "nume": "",
+   "gen": "f",
+   "varsta": "adolescent",
+   "skin": "#e6e1da",
+   "hair": {
+    "style": "chel",
+    "color": "#2a201a"
+   },
+   "faceAdj": {
+    "scale": 1,
+    "dy": 0,
+    "bright": 1,
+    "mask": 0.42
+   },
+   "face": null,
+   "body": {
+    "height": 162,
+    "chest": 84,
+    "waist": 66,
+    "hips": 90,
+    "shoe": 38
+   },
+   "outfit": {
+    "top": {
+     "type": "bluza",
+     "color": "#f1ece4",
+     "pattern": "uni",
+     "size": "S",
+     "produs": "p004"
+    },
+    "bottom": {
+     "type": "fusta",
+     "color": "#b8862b",
+     "pattern": "reiat",
+     "size": "S",
+     "produs": "p011"
+    },
+    "dress": null,
+    "outer": null,
+    "shoes": {
+     "type": "adidasi",
+     "color": "#f0f0f0",
+     "pattern": "uni",
+     "size": "38",
+     "produs": "p019"
+    },
+    "bag": {
+     "type": "rucsac",
+     "color": "#2f4f6f",
+     "pattern": "uni",
+     "size": "S",
+     "produs": "p021"
+    },
+    "acc1": null,
+    "acc2": null
+   }
+  },
+  {
+   "id": "man_adolescent",
+   "rol": "Adolescent",
+   "nume": "",
+   "gen": "m",
+   "varsta": "adolescent",
+   "skin": "#e6e1da",
+   "hair": {
+    "style": "chel",
+    "color": "#2a201a"
+   },
+   "faceAdj": {
+    "scale": 1,
+    "dy": 0,
+    "bright": 1,
+    "mask": 0.42
+   },
+   "face": null,
+   "body": {
+    "height": 174,
+    "chest": 90,
+    "waist": 76,
+    "hips": 92,
+    "shoe": 42
+   },
+   "outfit": {
+    "top": {
+     "type": "polo",
+     "color": "#1d4d3a",
+     "pattern": "uni",
+     "size": "S",
+     "produs": "p008"
+    },
+    "bottom": {
+     "type": "blugi",
+     "color": "#3b5b8c",
+     "pattern": "denim",
+     "size": "W30",
+     "produs": "p009"
+    },
+    "dress": null,
+    "outer": {
+     "type": "geaca",
+     "color": "#b8c4b0",
+     "pattern": "uni",
+     "size": "M",
+     "produs": "p012"
+    },
+    "shoes": {
+     "type": "adidasi",
+     "color": "#f0f0f0",
+     "pattern": "uni",
+     "size": "42",
+     "produs": "p019"
+    },
+    "bag": null,
+    "acc1": null,
+    "acc2": null
+   }
+  },
+  {
+   "id": "man_fetita",
+   "rol": "Fetiță",
+   "nume": "",
+   "gen": "f",
+   "varsta": "copil",
+   "skin": "#e6e1da",
+   "hair": {
+    "style": "chel",
+    "color": "#2a201a"
+   },
+   "faceAdj": {
+    "scale": 1,
+    "dy": 0,
+    "bright": 1,
+    "mask": 0.42
+   },
+   "face": null,
+   "body": {
+    "height": 128,
+    "chest": 64,
+    "waist": 56,
+    "hips": 66,
+    "shoe": 31
+   },
+   "outfit": {
+    "top": null,
+    "bottom": null,
+    "dress": {
+     "type": "rochie_scurta",
+     "color": "#d94f7a",
+     "pattern": "buline",
+     "size": "128",
+     "produs": "p015"
+    },
+    "outer": null,
+    "shoes": {
+     "type": "adidasi",
+     "color": "#f0f0f0",
+     "pattern": "uni",
+     "size": "32",
+     "produs": "p019"
+    },
+    "bag": null,
+    "acc1": null,
+    "acc2": null
+   }
+  },
+  {
+   "id": "man_baietel",
+   "rol": "Băiețel",
+   "nume": "",
+   "gen": "m",
+   "varsta": "copil",
+   "skin": "#e6e1da",
+   "hair": {
+    "style": "chel",
+    "color": "#2a201a"
+   },
+   "faceAdj": {
+    "scale": 1,
+    "dy": 0,
+    "bright": 1,
+    "mask": 0.42
+   },
+   "face": null,
+   "body": {
+    "height": 134,
+    "chest": 68,
+    "waist": 60,
+    "hips": 70,
+    "shoe": 33
+   },
+   "outfit": {
+    "top": {
+     "type": "tricou",
+     "color": "#2f8fd0",
+     "pattern": "dungi_or",
+     "size": "134",
+     "produs": "p016"
+    },
+    "bottom": {
+     "type": "blugi",
+     "color": "#3b5b8c",
+     "pattern": "denim",
+     "size": "134"
+    },
+    "dress": null,
+    "outer": {
+     "type": "hanorac",
+     "color": "#e07a3a",
+     "pattern": "uni",
+     "size": "134",
+     "produs": "p014"
+    },
+    "shoes": {
+     "type": "adidasi",
+     "color": "#f0f0f0",
+     "pattern": "uni",
+     "size": "32",
+     "produs": "p019"
+    },
+    "bag": null,
+    "acc1": null,
+    "acc2": null
+   }
+  }
+ ]
+}

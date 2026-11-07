@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- WebView-ul cere permisiunea; pagina se livrează din aplicație, fără internet -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- merge și fără ecran tactil (Chromebook, televizor cu mouse) -->
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true"
+        android:xlargeScreens="true" android:anyDensity="true" android:resizeable="true" />
+
+    <application
+        android:label="${appLabel}"
+        android:icon="@mipmap/ic_launcher"
+        android:theme="@style/Theme.DoinaDress"
+        android:usesCleartextTraffic="true"
+        android:allowBackup="true"
+        android:supportsRtl="false"
+        android:resizeableActivity="true"
+        android:enableOnBackInvokedCallback="true">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- fișierele salvate de pagină (export bază, imagini) se partajează din cache/partajare -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fisiere"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+    </application>
+</manifest>
